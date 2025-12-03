@@ -157,13 +157,14 @@
   <div id="history-box"></div>
 
   <script>
+    /* FINAL FIXED UPPERCASE CODEMAP */
     const codeMap = {
       "SEASON": "img1",
       "JHOPE": "img2",
       "TRAVEL": "img3",
       "OHMG": "img4",
       "PROS": "img5",
-      "RACE": "img6",
+      "RACE": "img6"
     };
 
     let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
@@ -189,21 +190,25 @@
     function showImage(id) {
       document.querySelectorAll("#image-display img")
         .forEach(img => img.style.display = "none");
-
       document.getElementById(id).style.display = "block";
     }
 
+    /* FIXED RESTORE CLICK + SPLIT + TRIM */
     function restoreState() {
       historyBox.innerHTML = localStorage.getItem("historyHTML") || "";
 
       [...historyBox.children].forEach(item => {
         item.addEventListener("click", () => {
-          const code = item.textContent.split(" ")[0];
+          const rawCode = item.textContent.split("✓")[0];
+          const code = rawCode.trim().toUpperCase();
           const imgId = codeMap[code];
-          showImage(imgId);
-          lastImage = imgId;
-          saveState();
-          popup("success", "🔍 REVEALED AGAIN!");
+
+          if (imgId) {
+            showImage(imgId);
+            lastImage = imgId;
+            saveState();
+            popup("success", "🔍 REVEALED AGAIN!");
+          }
         });
       });
 
@@ -238,10 +243,15 @@
         item.textContent = value + " ✓ USED";
 
         item.addEventListener("click", () => {
-          showImage(imgId);
-          lastImage = imgId;
-          saveState();
-          popup("success", "🔍 REVEALED AGAIN!");
+          const rawCode = item.textContent.split("✓")[0];
+          const code = rawCode.trim().toUpperCase();
+          const mappedId = codeMap[code];
+          if (mappedId) {
+            showImage(mappedId);
+            lastImage = mappedId;
+            saveState();
+            popup("success", "🔍 REVEALED AGAIN!");
+          }
         });
 
         historyBox.appendChild(item);
