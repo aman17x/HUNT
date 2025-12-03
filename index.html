@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Comic Code Scanner</title>
+
+  <style>
+    body {
+      background: #1a1a1a;
+      background-image:
+        radial-gradient(circle, rgba(255,255,0,0.25) 5%, transparent 70%),
+        radial-gradient(circle, rgba(0,150,255,0.25) 5%, transparent 70%),
+        repeating-linear-gradient(45deg, rgba(255,0,0,0.1) 0 10px, transparent 10px 20px);
+      color: white;
+      font-family: "Comic Sans MS", "Bangers", sans-serif;
+      margin: 0;
+      padding: 20px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 8vw;
+      text-align: center;
+      color: yellow;
+      text-shadow: 3px 3px 0px red;
+      margin-bottom: 25px;
+    }
+
+    .bubble {
+      width: 90%;
+      max-width: 400px;
+      padding: 12px;
+      background: white;
+      border: 4px solid black;
+      border-radius: 18px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -18px;
+      left: 25px;
+      width: 0;
+      height: 0;
+      border-top: 18px solid white;
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      filter: drop-shadow(3px 3px 0px black);
+    }
+
+    input {
+      width: 100%;
+      border: none;
+      outline: none;
+      font-size: 5vw;
+      background: transparent;
+    }
+
+    #image-display img {
+      width: 90%;
+      max-width: 400px;
+      margin-top: 25px;
+      border: 5px solid black;
+      border-radius: 12px;
+      display: none;
+      box-shadow: 6px 6px 0px yellow;
+      animation: bam 0.4s ease;
+    }
+
+    @keyframes bam {
+      from { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    #history-box {
+      width: 90%;
+      max-width: 400px;
+      padding: 15px;
+      margin-top: 25px;
+      background: white;
+      border: 4px solid black;
+      border-radius: 12px;
+      min-height: 100px;
+      box-shadow: 6px 6px 0px red;
+    }
+
+    .history-item {
+      padding: 8px 0;
+      font-size: 5vw;
+      color: black;
+      font-weight: bold;
+      border-bottom: 2px dashed black;
+    }
+
+    .history-item:active {
+      transform: scale(0.95);
+      opacity: 0.7;
+    }
+
+    .error-pop, .success-pop {
+      position: fixed;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      padding: 10px 20px;
+      font-size: 6vw;
+      border: 4px solid black;
+      border-radius: 10px;
+      animation: pop 0.3s forwards;
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    .error-pop {
+      background: red;
+      color: white;
+      text-shadow: 2px 2px black;
+    }
+
+    .success-pop {
+      background: yellow;
+      color: black;
+      text-shadow: 2px 2px white;
+    }
+
+    @keyframes pop {
+      0% { transform: translateX(-50%) scale(0); }
+      70% { transform: translateX(-50%) scale(1.2); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>SCAN THE SECRET CODE!</h1>
+
+  <div class="bubble">
+    <input id="codeInput" type="text" placeholder="Type your code... POW!" />
+  </div>
+
+  <div id="image-display">
+    <img id="img1" src="bm.png">
+    <img id="img2" src="jb.png">
+    <img id="img3" src="mb.png">
+    <img id="img4" src="oh.png">
+    <img id="img5" src="pp.png">
+    <img id="img6" src="ps.png">
+  </div>
+
+  <div id="history-box"></div>
+
+  <script>
+    const codeMap = {
+      "season": "img1",
+      "jhope": "img2",
+      "travel": "img3",
+      "ohmg": "img4",
+      "pros": "img5",
+      "race": "img6",
+    };
+
+    let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
+    let lastImage = localStorage.getItem("lastImage") || null;
+
+    const input = document.getElementById("codeInput");
+    const historyBox = document.getElementById("history-box");
+
+    function popup(type, message) {
+      const pop = document.createElement("div");
+      pop.className = type === "error" ? "error-pop" : "success-pop";
+      pop.textContent = message;
+      document.body.appendChild(pop);
+      setTimeout(() => pop.remove(), 1500);
+    }
+
+    function saveState() {
+      localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
+      localStorage.setItem("lastImage", lastImage);
+      localStorage.setItem("historyHTML", historyBox.innerHTML);
+    }
+
+    function showImage(id) {
+      document.querySelectorAll("#image-display img")
+        .forEach(img => img.style.display = "none");
+
+      document.getElementById(id).style.display = "block";
+    }
+
+    function restoreState() {
+      historyBox.innerHTML = localStorage.getItem("historyHTML") || "";
+
+      [...historyBox.children].forEach(item => {
+        item.addEventListener("click", () => {
+          const code = item.textContent.split(" ")[0];
+          const imgId = codeMap[code];
+          showImage(imgId);
+          lastImage = imgId;
+          saveState();
+          popup("success", "🔍 REVEALED AGAIN!");
+        });
+      });
+
+      if (lastImage) showImage(lastImage);
+    }
+
+    restoreState();
+
+    input.addEventListener("keyup", (e) => {
+      if (e.key === "Enter") {
+        const value = input.value.trim().toUpperCase();
+        input.value = "";
+
+        if (!codeMap[value]) {
+          popup("error", "❌ INVALID!");
+          return;
+        }
+
+        if (usedCodes.has(value)) {
+          popup("error", "⛔ USED!");
+          return;
+        }
+
+        usedCodes.add(value);
+
+        const imgId = codeMap[value];
+        showImage(imgId);
+        popup("success", "💥 BAM! FOUND!");
+
+        const item = document.createElement("div");
+        item.className = "history-item";
+        item.textContent = value + " ✓ USED";
+
+        item.addEventListener("click", () => {
+          showImage(imgId);
+          lastImage = imgId;
+          saveState();
+          popup("success", "🔍 REVEALED AGAIN!");
+        });
+
+        historyBox.appendChild(item);
+
+        lastImage = imgId;
+        saveState();
+      }
+    });
+  </script>
+
+</body>
+</html>
