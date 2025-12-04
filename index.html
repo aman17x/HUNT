@@ -6,22 +6,43 @@
   <title>Comic Code Scanner</title>
 
   <style>
+
+    /* MAIN BACKGROUND USING hunt_web_bg.jpg */
     body {
-      background: #1a1a1a;
-      background-image:
-        radial-gradient(circle, rgba(255,255,0,0.25) 5%, transparent 70%),
-        radial-gradient(circle, rgba(0,150,255,0.25) 5%, transparent 70%),
-        repeating-linear-gradient(45deg, rgba(255,0,0,0.1) 0 10px, transparent 10px 20px);
-      color: white;
-      font-family: "Comic Sans MS", "Bangers", sans-serif;
       margin: 0;
       padding: 20px 10px;
+      font-family: "Comic Sans MS", "Bangers", sans-serif;
+
+      background: url("hunt_web_bg.jpg") center/cover no-repeat fixed;
+      position: relative;
+
+      /* ensure children render above glass layer */
+      z-index: 0;
+
       display: flex;
       flex-direction: column;
       align-items: center;
       overflow-x: hidden;
-      position: relative;
     }
+
+    /* 🔥 LIQUID GLASS OVERLAY BEHIND EVERYTHING */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+
+      background: rgba(255, 255, 255, 0.08);  /* light tint */
+      z-index: -1;   /* stays behind all page content */
+    }
+
+
+    /* --- REST OF YOUR CODE BELOW (unchanged except background removed) --- */
 
     h1 {
       font-size: 8vw;
@@ -41,7 +62,6 @@
       background: white;
       border: 4px solid black;
       border-radius: 12px;
-
       padding: 12px 10px;
       box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
 
@@ -58,14 +78,12 @@
 
       user-select: none;
 
-      /* halftone comic texture */
       background-image: radial-gradient(rgba(0,0,0,0.08) 15%, transparent 15%);
       background-size: 10px 10px;
     }
 
-    #route-sticker span {
-      padding: 4px 0;
-    }
+    #route-sticker span { padding: 4px 0; }
+
 
     /* Timer box */
     #timer-wrap {
@@ -95,7 +113,6 @@
       color: #222;
     }
 
-    /* Route board */
     #route-board {
       width: 90%;
       max-width: 400px;
@@ -213,18 +230,15 @@
 
 <body>
 
-  <!-- VERTICAL COMIC STICKER -->
   <div id="route-sticker"></div>
 
   <h1>SCAN THE SECRET CODE!</h1>
 
-  <!-- Timer -->
   <div id="timer-wrap">
     <div id="timer-bubble" class="timer-bubble">LOADING TIMER...</div>
     <div id="timer-desc" class="timer-small">Using your device time</div>
   </div>
 
-  <!-- ROUTE BOARD -->
   <div id="route-board">ROUTE: Not Assigned</div>
 
   <div class="bubble">
@@ -253,7 +267,6 @@
       "RACE":   "img6"
     };
 
-    /* ROUTE MAP */
     const routeMap = {
       "RACE":   "Route 1",
       "JHOPE":  "Route 2",
@@ -262,7 +275,7 @@
       "TRAVEL": "Route 5"
     };
 
-    /* RANDOM ROUTE ASSIGNMENT (ONE TIME ONLY) */
+    /* RANDOM ROUTE — ONE TIME ONLY */
     let routeCode = localStorage.getItem("routeCode");
     if (!routeCode) {
       const possible = ["SEASON", "TRAVEL", "RACE", "JHOPE", "PROS"];
@@ -283,7 +296,7 @@
     /* UPDATE ROUTE BOARD */
     document.getElementById("route-board").textContent = "ROUTE: " + userRoute;
 
-    /* DAILY TIMER (3 PM to 5 PM) */
+    /* DAILY TIMER */
     const timerBubble = document.getElementById("timer-bubble");
     const timerDesc   = document.getElementById("timer-desc");
 
@@ -325,6 +338,7 @@
     updateDailyTimer();
     setInterval(updateDailyTimer, 1000);
 
+
     /* RESTORE */
     let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
     let lastImage = localStorage.getItem("lastImage") || null;
@@ -351,7 +365,6 @@
 
     restoreState();
 
-    /* POPUP */
     function popup(type, message) {
       const pop = document.createElement("div");
       pop.className = type === "error" ? "error-pop" : "success-pop";
@@ -360,7 +373,6 @@
       setTimeout(() => pop.remove(), 1500);
     }
 
-    /* SHOW IMAGE */
     function showImage(id) {
       document.querySelectorAll("#image-display img")
         .forEach(img => img.style.display = "none");
@@ -382,7 +394,7 @@
         const value = input.value.trim().toUpperCase();
         input.value = "";
 
-        /* NEW FEATURE: First code must match assigned route */
+        /* FIRST CODE MUST MATCH ASSIGNED ROUTE */
         if (usedCodes.size === 0) {
           if (value !== routeCode) {
             popup("error", "❌ Enter your assigned starting code!");
