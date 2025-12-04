@@ -31,23 +31,42 @@
       margin-bottom: 18px;
     }
 
-    /* LEFT-SIDE RANDOM CODE STICKER */
+    /* ------------------------------------- */
+    /* COMIC VERTICAL ROUTE STICKER */
+    /* ------------------------------------- */
     #route-sticker {
       position: fixed;
-      left: 10px;
+      left: 5px;
       top: 50%;
-      transform: translateY(-50%);
-      background: #ff00cc;
-      color: white;
-      padding: 12px 16px;
-      border-radius: 10px;
+      transform: translateY(-50%) rotate(-3deg);
+
+      background: white;
       border: 4px solid black;
+      border-radius: 12px;
+
+      padding: 12px 10px;
+      box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
+
       font-size: 6vw;
       font-weight: 900;
-      box-shadow: 6px 6px 0px #ff66ff;
+      color: black;
+
       z-index: 9999;
-      writing-mode: horizontal-tb;
-      text-align: center;
+
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+
+      user-select: none;
+
+      /* halftone comic texture */
+      background-image: radial-gradient(rgba(0,0,0,0.08) 15%, transparent 15%);
+      background-size: 10px 10px;
+    }
+
+    #route-sticker span {
+      padding: 4px 0;
     }
 
     /* Timer box */
@@ -196,8 +215,8 @@
 
 <body>
 
-  <!-- RANDOM ROUTE STICKER -->
-  <div id="route-sticker"><span id="sticker-text">---</span></div>
+  <!-- COMIC VERTICAL ROUTE STICKER -->
+  <div id="route-sticker"></div>
 
   <h1>SCAN THE SECRET CODE!</h1>
 
@@ -245,27 +264,29 @@
       "TRAVEL": "Route 5"
     };
 
-    /* RANDOM ROUTE ASSIGNMENT (ONLY FIRST TIME) */
-    let userRoute = localStorage.getItem("userRoute") || null;
-    let routeCode = localStorage.getItem("routeCode") || null;
-
-    const possibleCodes = ["SEASON", "TRAVEL", "RACE", "JHOPE", "PROS"];
-
+    /* RANDOM ROUTE ASSIGNMENT (ONE TIME ONLY) */
+    let routeCode = localStorage.getItem("routeCode");
     if (!routeCode) {
-      routeCode = possibleCodes[Math.floor(Math.random() * possibleCodes.length)];
+      const possible = ["SEASON", "TRAVEL", "RACE", "JHOPE", "PROS"];
+      routeCode = possible[Math.floor(Math.random() * possible.length)];
       localStorage.setItem("routeCode", routeCode);
       localStorage.setItem("userRoute", routeMap[routeCode]);
     }
 
-    userRoute = routeMap[routeCode];
+    let userRoute = routeMap[routeCode];
 
-    // Update sticker and board
-    document.getElementById("sticker-text").textContent = `< ${routeCode} >`;
+    /* UPDATE STICKER */
+    let vertical = "";
+    for (let char of routeCode) {
+      vertical += `<span>${char}</span>`;
+    }
+    document.getElementById("route-sticker").innerHTML = vertical;
 
+    /* UPDATE ROUTE BOARD */
     const routeBoard = document.getElementById("route-board");
     routeBoard.textContent = "ROUTE: " + userRoute;
 
-    /* TIMER LOGIC (same daily timer) */
+    /* DAILY TIMER (3 PM to 5 PM) */
     const timerBubble = document.getElementById("timer-bubble");
     const timerDesc   = document.getElementById("timer-desc");
 
@@ -307,10 +328,9 @@
     updateDailyTimer();
     setInterval(updateDailyTimer, 1000);
 
-    /* RESTORE STATE */
+    /* RESTORE */
     let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
     let lastImage = localStorage.getItem("lastImage") || null;
-
     const historyBox = document.getElementById("history-box");
 
     function restoreState() {
@@ -350,13 +370,11 @@
       document.getElementById(id).style.display = "block";
     }
 
-    /* SAVE */
     function saveState() {
       localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
       localStorage.setItem("lastImage", lastImage);
       localStorage.setItem("historyHTML", historyBox.innerHTML);
     }
-
 
     /* INPUT HANDLER */
     const input = document.getElementById("codeInput");
