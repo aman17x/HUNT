@@ -30,7 +30,7 @@
       margin-bottom: 18px;
     }
 
-    /* Timer box (comic style) */
+    /* Timer bubble */
     #timer-wrap {
       width: 90%;
       max-width: 400px;
@@ -164,11 +164,6 @@
       100% { transform: translateX(-50%) scale(1); }
     }
 
-    /* small tweaks for very small screens */
-    @media (max-width: 360px) {
-      .timer-bubble { font-size: 6.5vw; }
-      .timer-small { font-size: 4.2vw; }
-    }
   </style>
 </head>
 
@@ -176,7 +171,7 @@
 
   <h1>SCAN THE SECRET CODE!</h1>
 
-  <!-- Timer display -->
+  <!-- Timer -->
   <div id="timer-wrap">
     <div id="timer-bubble" class="timer-bubble">LOADING TIMER...</div>
     <div id="timer-desc" class="timer-small">Using your device time</div>
@@ -231,115 +226,79 @@
     function showImage(id) {
       document.querySelectorAll("#image-display img")
         .forEach(img => img.style.display = "none");
-      const el = document.getElementById(id);
-      if (el) el.style.display = "block";
+      document.getElementById(id).style.display = "block";
     }
 
-    /* ------------- TIMER LOGIC ------------- */
+    /* ---------------- TIMER (Visual Only) ---------------- */
     const timerBubble = document.getElementById("timer-bubble");
-    const timerDesc = document.getElementById("timer-desc");
+    const timerDesc   = document.getElementById("timer-desc");
 
-    // Target window: Saturday, 6 December 2025, 15:00 to 17:00 (device local time)
     function getTargetTimes() {
-      // year 2025, month 11 => December (JS months 0-indexed)
-      const year = 2025, month = 11, day = 6;
-      const start = new Date(year, month, day, 15, 0, 0, 0); // 15:00 local
-      const end   = new Date(year, month, day, 17, 0, 0, 0); // 17:00 local
+      const year = 2025, month = 11, day = 6;  // December 6
+      const start = new Date(year, month, day, 15, 0, 0); // 3 PM
+      const end   = new Date(year, month, day, 17, 0, 0); // 5 PM
       return { start, end };
     }
 
     function formatTime(ms) {
       if (ms < 0) ms = 0;
-      const total = Math.floor(ms / 1000);
-      const hours = Math.floor(total / 3600);
-      const mins = Math.floor((total % 3600) / 60);
-      const secs = total % 60;
-      const hh = String(hours).padStart(2, '0');
-      const mm = String(mins).padStart(2, '0');
-      const ss = String(secs).padStart(2, '0');
-      return `${hh}:${mm}:${ss}`;
+      const sec = Math.floor(ms / 1000);
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
     }
 
-    function updateTimerDisplay() {
+    function updateTimer() {
       const now = new Date();
       const { start, end } = getTargetTimes();
 
       if (now < start) {
-        // Not started yet
-        timerBubble.textContent = "TIMER NOT STARTED";
-        timerDesc.textContent = `Starts at 03:00 PM — Sat, Dec 6, 2025 (device time)`;
-      } else if (now >= end) {
-        // Finished
+        const untilStart = start - now;
+        timerBubble.textContent = `Starts In: ${formatTime(untilStart)}`;
+        timerDesc.textContent = "Starts at 03:00 PM — Dec 6";
+      }
+      else if (now >= start && now < end) {
+        const left = end - now;
+        timerBubble.textContent = `Time Left: ${formatTime(left)}`;
+        timerDesc.textContent = "Ends at 05:00 PM — Dec 6";
+      }
+      else {
         timerBubble.textContent = "TIME'S UP!";
-        timerDesc.textContent = `Event ended at 05:00 PM — Sat, Dec 6, 2025`;
-      } else {
-        // Active window: show time remaining until end (option A)
-        const remainingMs = end - now;
-        timerBubble.textContent = `Time Left: ${formatTime(remainingMs)}`;
-        timerDesc.textContent = `Ends at 05:00 PM — Sat, Dec 6, 2025`;
+        timerDesc.textContent = "Event Ended";
       }
     }
 
-    // run immediately then every second
-    updateTimerDisplay();
-    const timerInterval = setInterval(updateTimerDisplay, 1000);
+    updateTimer();
+    setInterval(updateTimer, 1000);
 
-    /* ------------- RESTORE + HISTORY HANDLERS ------------- */
-    function attachHistoryClickHandlers() {
-      [...historyBox.children].forEach(item => {
-        // Avoid duplicate listeners — remove then add
-        item.replaceWith(item.cloneNode(true));
-      });
+    /* ---------------- RESTORE ---------------- */
+    function restoreState() {
+      historyBox.innerHTML = localStorage.getItem("historyHTML") || "";
 
       [...historyBox.children].forEach(item => {
         item.addEventListener("click", () => {
-          const rawCode = item.textContent.split("✓")[0];
-          const code = rawCode.trim().toUpperCase();
+          const code = item.textContent.split("✓")[0].trim().toUpperCase();
           const imgId = codeMap[code];
           if (imgId) {
             showImage(imgId);
             lastImage = imgId;
             saveState();
             popup("success", "🔍 REVEALED AGAIN!");
-          } else {
-            // if mapping missing, show an error silently
-            popup("error", "⚠️ Mapping missing");
           }
         });
       });
-    }
-
-    function restoreState() {
-      historyBox.innerHTML = localStorage.getItem("historyHTML") || "";
-
-      // Rebuild usedCodes set from saved array (if any)
-      const savedUsed = JSON.parse(localStorage.getItem("usedCodes") || "[]");
-      usedCodes = new Set(savedUsed);
-
-      attachHistoryClickHandlers();
 
       if (lastImage) showImage(lastImage);
     }
 
     restoreState();
 
-    /* ------------- INPUT HANDLER ------------- */
+    /* ---------------- INPUT HANDLER ---------------- */
     input.addEventListener("keyup", (e) => {
       if (e.key === "Enter") {
         const value = input.value.trim().toUpperCase();
         input.value = "";
-
-        // Check timer restrictions: allow codes only during the active window
-        const now = new Date();
-        const { start, end } = getTargetTimes();
-        if (now < start) {
-          popup("error", "⏳ TIMER NOT STARTED!");
-          return;
-        }
-        if (now >= end) {
-          popup("error", "⛔ TIME'S UP!");
-          return;
-        }
 
         if (!codeMap[value]) {
           popup("error", "❌ INVALID!");
@@ -362,16 +321,13 @@
         item.textContent = value + " ✓ USED";
 
         item.addEventListener("click", () => {
-          const rawCode = item.textContent.split("✓")[0];
-          const code = rawCode.trim().toUpperCase();
-          const mappedId = codeMap[code];
-          if (mappedId) {
-            showImage(mappedId);
-            lastImage = mappedId;
+          const code = item.textContent.split("✓")[0].trim().toUpperCase();
+          const mapped = codeMap[code];
+          if (mapped) {
+            showImage(mapped);
+            lastImage = mapped;
             saveState();
             popup("success", "🔍 REVEALED AGAIN!");
-          } else {
-            popup("error", "⚠️ Mapping missing");
           }
         });
 
@@ -380,11 +336,6 @@
         lastImage = imgId;
         saveState();
       }
-    });
-
-    // Clean up interval when page unloads (good practice)
-    window.addEventListener('beforeunload', () => {
-      clearInterval(timerInterval);
     });
   </script>
 
