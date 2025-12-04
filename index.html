@@ -5,9 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Comic Code Scanner</title>
 
+  <!-- COMIC FONT -->
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+
   <style>
 
-    /* MAIN BACKGROUND USING hunt_web_bg.jpg */
+    /* MAIN BACKGROUND (RAINY GLASS EFFECT + IMAGE) */
     body {
       margin: 0;
       padding: 20px 10px;
@@ -15,8 +18,6 @@
 
       background: url("hunt_web_bg.jpg") center/cover no-repeat fixed;
       position: relative;
-
-      /* ensure children render above glass layer */
       z-index: 0;
 
       display: flex;
@@ -25,53 +26,45 @@
       overflow-x: hidden;
     }
 
-    /* 🔥 LIQUID GLASS OVERLAY BEHIND EVERYTHING */
-   /* 🎨 RAINY GLASS EFFECT */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+    /* RAINY LIQUID GLASS OVERLAY */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
 
-  /* Less blur → more visible background */
-  backdrop-filter: blur(5px) brightness(0.85) saturate(160%);
-  -webkit-backdrop-filter: blur(5px) brightness(0.85) saturate(160%);
+      backdrop-filter: blur(5px) brightness(0.85) saturate(160%);
+      -webkit-backdrop-filter: blur(5px) brightness(0.85) saturate(160%);
 
-  /* Slightly darker tint for contrast */
-  background: rgba(20, 20, 20, 0.25);
+      background: rgba(20, 20, 20, 0.25);
 
-  /* Light vertical rain streak pattern */
-  background-image:
-      linear-gradient(
-        rgba(255,255,255,0.07) 2px,
-        transparent 2px
-      ),
-      radial-gradient(rgba(255,255,255,0.04), transparent 70%);
+      background-image:
+        linear-gradient(rgba(255,255,255,0.06) 2px, transparent 2px),
+        radial-gradient(rgba(255,255,255,0.04), transparent 70%);
+      background-size:
+        100% 12px,
+        100% 100%;
 
-  background-size:
-      100% 12px,   /* rain streaks */
-      100% 100%;   /* subtle glow */
+      z-index: -1;
+    }
 
-  background-repeat: repeat;
-
-  z-index: -1;
-}
-
-
-
-    /* --- REST OF YOUR CODE BELOW (unchanged except background removed) --- */
-
+    /* TITLE: SCAN THE SECRET CODE */
     h1 {
       font-size: 8vw;
       text-align: center;
-      color: yellow;
-      text-shadow: 3px 3px 0px red;
+      color: #fff700;
+
+      font-family: "Bangers", sans-serif;
       margin-bottom: 18px;
+
+      text-shadow:
+        4px 4px 0px #000,
+        -2px -2px 0px #ff3131;
     }
 
-    /* COMIC VERTICAL ROUTE STICKER */
+    /* VERTICAL ROUTE STICKER */
     #route-sticker {
       position: fixed;
       left: 5px;
@@ -81,6 +74,7 @@ body::before {
       background: white;
       border: 4px solid black;
       border-radius: 12px;
+
       padding: 12px 10px;
       box-shadow: 6px 6px 0px rgba(0,0,0,0.4);
 
@@ -94,7 +88,6 @@ body::before {
       flex-direction: column;
       align-items: center;
       line-height: 1;
-
       user-select: none;
 
       background-image: radial-gradient(rgba(0,0,0,0.08) 15%, transparent 15%);
@@ -104,7 +97,7 @@ body::before {
     #route-sticker span { padding: 4px 0; }
 
 
-    /* Timer box */
+    /* TIMER BOX */
     #timer-wrap {
       width: 90%;
       max-width: 400px;
@@ -112,38 +105,58 @@ body::before {
       text-align: center;
     }
 
+    /* TIMER MAIN TEXT (TIME'S UP / TIME LEFT) */
     .timer-bubble {
       width: 100%;
-      padding: 10px 12px;
-      background: #fffbcc;
+      padding: 12px 14px;
+      background: #fff700;
+
       border: 4px solid black;
       border-radius: 14px;
-      color: #111;
-      font-weight: 800;
-      box-shadow: 6px 6px 0px #ffb400;
-      font-size: 5.5vw;
+
+      font-family: "Bangers", sans-serif;
+      font-size: 6vw;
+      color: black;
+      font-weight: 900;
+
+      box-shadow: 6px 6px 0px #ff3131;
+
+      text-shadow:
+        3px 3px 0px #ff3131,
+        -2px -2px 0px #000;
     }
 
+    /* TIMER LOWER TEXT (WINNERS!! SEE YOU AT THE CON!) */
     .timer-small {
       display: block;
-      font-size: 3.6vw;
-      font-weight: 700;
+      font-family: "Bangers", sans-serif;
+      font-size: 4.5vw;
+      font-weight: 900;
       margin-top: 6px;
-      color: #222;
+
+      color: white;
+
+      text-shadow:
+        3px 3px 0px #000,
+        -2px -2px 0px #ff3131;
     }
 
+    /* ROUTE BOARD */
     #route-board {
       width: 90%;
       max-width: 400px;
-      background: #fff;
+      background: white;
       border: 4px solid black;
       border-radius: 14px;
       padding: 12px;
       margin-bottom: 12px;
       text-align: center;
+
       font-size: 6vw;
-      color: #000;
+      color: black;
       font-weight: 900;
+
+      font-family: "Bangers", sans-serif;
       box-shadow: 6px 6px 0px #00d0ff;
     }
 
@@ -177,6 +190,7 @@ body::before {
       outline: none;
       font-size: 5vw;
       background: transparent;
+      font-family: "Bangers", sans-serif;
     }
 
     #image-display img {
@@ -186,6 +200,7 @@ body::before {
       border: 5px solid black;
       border-radius: 12px;
       display: none;
+
       box-shadow: 6px 6px 0px yellow;
       animation: bam 0.4s ease;
     }
@@ -200,9 +215,11 @@ body::before {
       max-width: 400px;
       padding: 15px;
       margin-top: 18px;
+
       background: white;
       border: 4px solid black;
       border-radius: 12px;
+
       min-height: 100px;
       box-shadow: 6px 6px 0px red;
     }
@@ -212,6 +229,8 @@ body::before {
       font-size: 5vw;
       color: black;
       font-weight: bold;
+      font-family: "Bangers", sans-serif;
+
       border-bottom: 2px dashed black;
       user-select: none;
     }
@@ -226,13 +245,18 @@ body::before {
       top: 15px;
       left: 50%;
       transform: translateX(-50%) scale(0);
+
       padding: 10px 20px;
       font-size: 6vw;
+
       border: 4px solid black;
       border-radius: 10px;
+
       animation: pop 0.3s forwards;
       z-index: 999;
       white-space: nowrap;
+
+      font-family: "Bangers", sans-serif;
     }
 
     .error-pop { background: red; color: white; }
@@ -249,15 +273,18 @@ body::before {
 
 <body>
 
+  <!-- ROUTE STICKER -->
   <div id="route-sticker"></div>
 
   <h1>SCAN THE SECRET CODE!</h1>
 
+  <!-- TIMER -->
   <div id="timer-wrap">
     <div id="timer-bubble" class="timer-bubble">LOADING TIMER...</div>
     <div id="timer-desc" class="timer-small">Using your device time</div>
   </div>
 
+  <!-- ROUTE BOARD -->
   <div id="route-board">ROUTE: Not Assigned</div>
 
   <div class="bubble">
@@ -276,14 +303,14 @@ body::before {
   <div id="history-box"></div>
 
   <script>
-    /* CODE MAP */
+
     const codeMap = {
       "SEASON": "img1",
-      "JHOPE":  "img2",
+      "JHOPE": "img2",
       "TRAVEL": "img3",
-      "OHMG":   "img4",
-      "PROS":   "img5",
-      "RACE":   "img6"
+      "OHMG": "img4",
+      "PROS": "img5",
+      "RACE": "img6"
     };
 
     const routeMap = {
@@ -294,7 +321,7 @@ body::before {
       "TRAVEL": "Route 5"
     };
 
-    /* RANDOM ROUTE — ONE TIME ONLY */
+    /* RANDOM ROUTE ONE TIME ONLY */
     let routeCode = localStorage.getItem("routeCode");
     if (!routeCode) {
       const possible = ["SEASON", "TRAVEL", "RACE", "JHOPE", "PROS"];
@@ -307,15 +334,14 @@ body::before {
 
     /* UPDATE STICKER */
     let vertical = "";
-    for (let char of routeCode) {
-      vertical += `<span>${char}</span>`;
-    }
+    for (let char of routeCode) vertical += `<span>${char}</span>`;
     document.getElementById("route-sticker").innerHTML = vertical;
 
     /* UPDATE ROUTE BOARD */
     document.getElementById("route-board").textContent = "ROUTE: " + userRoute;
 
-    /* DAILY TIMER */
+
+    /* DAILY TIMER: 3PM → 5PM */
     const timerBubble = document.getElementById("timer-bubble");
     const timerDesc   = document.getElementById("timer-desc");
 
@@ -342,15 +368,15 @@ body::before {
 
       if (now < start) {
         timerBubble.textContent = `Starts In: ${formatTime(start - now)}`;
-        timerDesc.textContent = "Daily timer starts at 03:00 PM";
+        timerDesc.textContent = "Winners!! See you at the con!";
       }
       else if (now >= start && now < end) {
         timerBubble.textContent = `Time Left: ${formatTime(end - now)}`;
-        timerDesc.textContent = "Ends at 05:00 PM today";
+        timerDesc.textContent = "Winners!! See you at the con!";
       }
       else {
         timerBubble.textContent = "TIME'S UP!";
-        timerDesc.textContent = "See you tomorrow at 03:00 PM!";
+        timerDesc.textContent = "WINNERS!! SEE YOU AT THE CON!";
       }
     }
 
@@ -358,7 +384,7 @@ body::before {
     setInterval(updateDailyTimer, 1000);
 
 
-    /* RESTORE */
+    /* STATE RESTORE */
     let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
     let lastImage = localStorage.getItem("lastImage") || null;
     const historyBox = document.getElementById("history-box");
@@ -384,6 +410,8 @@ body::before {
 
     restoreState();
 
+
+    /* POPUP */
     function popup(type, message) {
       const pop = document.createElement("div");
       pop.className = type === "error" ? "error-pop" : "success-pop";
@@ -392,6 +420,7 @@ body::before {
       setTimeout(() => pop.remove(), 1500);
     }
 
+    /* IMAGE CONTROL */
     function showImage(id) {
       document.querySelectorAll("#image-display img")
         .forEach(img => img.style.display = "none");
@@ -404,6 +433,7 @@ body::before {
       localStorage.setItem("historyHTML", historyBox.innerHTML);
     }
 
+
     /* INPUT HANDLER */
     const input = document.getElementById("codeInput");
 
@@ -414,11 +444,9 @@ body::before {
         input.value = "";
 
         /* FIRST CODE MUST MATCH ASSIGNED ROUTE */
-        if (usedCodes.size === 0) {
-          if (value !== routeCode) {
-            popup("error", "❌ Enter your assigned starting code!");
-            return;
-          }
+        if (usedCodes.size === 0 && value !== routeCode) {
+          popup("error", "❌ Enter your assigned starting code!");
+          return;
         }
 
         if (!codeMap[value]) {
@@ -432,8 +460,8 @@ body::before {
         }
 
         usedCodes.add(value);
-
         const imgId = codeMap[value];
+
         showImage(imgId);
         popup("success", "💥 BAM! FOUND!");
 
@@ -442,14 +470,10 @@ body::before {
         item.textContent = value + " ✓ USED";
 
         item.addEventListener("click", () => {
-          const code = item.textContent.split("✓")[0].trim().toUpperCase();
-          const mapped = codeMap[code];
-          if (mapped) {
-            showImage(mapped);
-            lastImage = mapped;
-            saveState();
-            popup("success", "🔍 REVEALED AGAIN!");
-          }
+          showImage(imgId);
+          lastImage = imgId;
+          saveState();
+          popup("success", "🔍 REVEALED AGAIN!");
         });
 
         historyBox.appendChild(item);
