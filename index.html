@@ -20,6 +20,7 @@
       flex-direction: column;
       align-items: center;
       overflow-x: hidden;
+      position: relative;
     }
 
     h1 {
@@ -30,7 +31,26 @@
       margin-bottom: 18px;
     }
 
-    /* Timer bubble */
+    /* LEFT-SIDE RANDOM CODE STICKER */
+    #route-sticker {
+      position: fixed;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ff00cc;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 4px solid black;
+      font-size: 6vw;
+      font-weight: 900;
+      box-shadow: 6px 6px 0px #ff66ff;
+      z-index: 9999;
+      writing-mode: horizontal-tb;
+      text-align: center;
+    }
+
+    /* Timer box */
     #timer-wrap {
       width: 90%;
       max-width: 400px;
@@ -162,17 +182,8 @@
       white-space: nowrap;
     }
 
-    .error-pop {
-      background: red;
-      color: white;
-      text-shadow: 2px 2px black;
-    }
-
-    .success-pop {
-      background: yellow;
-      color: black;
-      text-shadow: 2px 2px white;
-    }
+    .error-pop { background: red; color: white; }
+    .success-pop { background: yellow; color: black; }
 
     @keyframes pop {
       0% { transform: translateX(-50%) scale(0); }
@@ -184,6 +195,9 @@
 </head>
 
 <body>
+
+  <!-- RANDOM ROUTE STICKER -->
+  <div id="route-sticker"><span id="sticker-text">---</span></div>
 
   <h1>SCAN THE SECRET CODE!</h1>
 
@@ -231,46 +245,27 @@
       "TRAVEL": "Route 5"
     };
 
-    let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
-    let lastImage = localStorage.getItem("lastImage") || null;
+    /* RANDOM ROUTE ASSIGNMENT (ONLY FIRST TIME) */
     let userRoute = localStorage.getItem("userRoute") || null;
+    let routeCode = localStorage.getItem("routeCode") || null;
 
-    const input = document.getElementById("codeInput");
-    const historyBox = document.getElementById("history-box");
+    const possibleCodes = ["SEASON", "TRAVEL", "RACE", "JHOPE", "PROS"];
+
+    if (!routeCode) {
+      routeCode = possibleCodes[Math.floor(Math.random() * possibleCodes.length)];
+      localStorage.setItem("routeCode", routeCode);
+      localStorage.setItem("userRoute", routeMap[routeCode]);
+    }
+
+    userRoute = routeMap[routeCode];
+
+    // Update sticker and board
+    document.getElementById("sticker-text").textContent = `< ${routeCode} >`;
+
     const routeBoard = document.getElementById("route-board");
+    routeBoard.textContent = "ROUTE: " + userRoute;
 
-    function updateRouteBoard() {
-      if (!userRoute) {
-        routeBoard.textContent = "ROUTE: Not Assigned";
-      } else {
-        routeBoard.textContent = "ROUTE: " + userRoute;
-      }
-    }
-
-    updateRouteBoard();
-
-    function popup(type, message) {
-      const pop = document.createElement("div");
-      pop.className = type === "error" ? "error-pop" : "success-pop";
-      pop.textContent = message;
-      document.body.appendChild(pop);
-      setTimeout(() => pop.remove(), 1500);
-    }
-
-    function saveState() {
-      localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
-      localStorage.setItem("lastImage", lastImage);
-      localStorage.setItem("historyHTML", historyBox.innerHTML);
-      if (userRoute) localStorage.setItem("userRoute", userRoute);
-    }
-
-    function showImage(id) {
-      document.querySelectorAll("#image-display img")
-        .forEach(img => img.style.display = "none");
-      document.getElementById(id).style.display = "block";
-    }
-
-    /* DAILY TIMER (3PM–5PM) */
+    /* TIMER LOGIC (same daily timer) */
     const timerBubble = document.getElementById("timer-bubble");
     const timerDesc   = document.getElementById("timer-desc");
 
@@ -313,6 +308,11 @@
     setInterval(updateDailyTimer, 1000);
 
     /* RESTORE STATE */
+    let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
+    let lastImage = localStorage.getItem("lastImage") || null;
+
+    const historyBox = document.getElementById("history-box");
+
     function restoreState() {
       historyBox.innerHTML = localStorage.getItem("historyHTML") || "";
 
@@ -334,7 +334,33 @@
 
     restoreState();
 
+    /* POPUP */
+    function popup(type, message) {
+      const pop = document.createElement("div");
+      pop.className = type === "error" ? "error-pop" : "success-pop";
+      pop.textContent = message;
+      document.body.appendChild(pop);
+      setTimeout(() => pop.remove(), 1500);
+    }
+
+    /* SHOW IMAGE */
+    function showImage(id) {
+      document.querySelectorAll("#image-display img")
+        .forEach(img => img.style.display = "none");
+      document.getElementById(id).style.display = "block";
+    }
+
+    /* SAVE */
+    function saveState() {
+      localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
+      localStorage.setItem("lastImage", lastImage);
+      localStorage.setItem("historyHTML", historyBox.innerHTML);
+    }
+
+
     /* INPUT HANDLER */
+    const input = document.getElementById("codeInput");
+
     input.addEventListener("keyup", (e) => {
       if (e.key === "Enter") {
 
@@ -352,14 +378,6 @@
         }
 
         usedCodes.add(value);
-
-        /* ROUTE SETTING — FIRST VALID CODE ONLY */
-        if (!userRoute && routeMap[value]) {
-          userRoute = routeMap[value];
-          localStorage.setItem("userRoute", userRoute);
-          updateRouteBoard();
-          popup("success", `🚩 YOU ARE IN ${userRoute}!`);
-        }
 
         const imgId = codeMap[value];
         showImage(imgId);
