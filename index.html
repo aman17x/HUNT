@@ -18,7 +18,6 @@
 
       background: url("hunt_web_bg2.jpg") center/cover no-repeat fixed;
       position: relative;
-      z-index: 0;
 
       display: flex;
       flex-direction: column;
@@ -50,7 +49,7 @@
       z-index: -1;
     }
 
-    /* TITLE: SCAN THE SECRET CODE */
+    /* TITLE */
     h1 {
       font-size: 8vw;
       text-align: center;
@@ -65,39 +64,38 @@
     }
 
     /* VERTICAL ROUTE STICKER */
-  #route-sticker {
-  position: fixed;
-  top: 10px;
-  left: 10px;
+    #route-sticker {
+      position: fixed;
+      top: 10px;
+      left: 10px;
 
-  background: white;
-  border: 4px solid black;
-  border-radius: 12px;
+      background: white;
+      border: 4px solid black;
+      border-radius: 12px;
 
-  padding: 8px 6px;
-  box-shadow: 4px 4px 0px rgba(0,0,0,0.4);
+      padding: 8px 6px;
+      box-shadow: 4px 4px 0px rgba(0,0,0,0.4);
 
-  font-size: 5vw;
-  font-weight: 900;
-  font-family: "Bangers", sans-serif;
-  color: black;
+      font-size: 5vw;
+      font-weight: 900;
+      font-family: "Bangers", sans-serif;
+      color: black;
 
-  z-index: 999999;
+      z-index: 999999;
 
-  display: flex;
-  flex-direction: column;   /* vertical stack */
-  align-items: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1;
+      user-select: none;
 
-  line-height: 1;
-  user-select: none;
+      background-image: radial-gradient(rgba(0,0,0,0.08) 15%, transparent 15%);
+      background-size: 10px 10px;
+    }
 
-  background-image: radial-gradient(rgba(0,0,0,0.08) 15%, transparent 15%);
-  background-size: 10px 10px;
-}
-
-#route-sticker span {
-  padding: 2px 0;
-}
+    #route-sticker span {
+      padding: 2px 0;
+    }
 
     /* TIMER BOX */
     #timer-wrap {
@@ -107,7 +105,7 @@
       text-align: center;
     }
 
-    /* TIMER MAIN TEXT (TIME'S UP / TIME LEFT) */
+    /* TIMER MAIN */
     .timer-bubble {
       width: 100%;
       padding: 12px 14px;
@@ -193,7 +191,7 @@
       font-family: "Bangers", sans-serif;
     }
 
-    /* RESOURCE BUTTON (new) */
+    /* RESOURCE BUTTON */
     #resource-display {
       margin-top: 20px;
       text-align: center;
@@ -217,6 +215,7 @@
       transform: scale(0.95);
     }
 
+    /* HISTORY BOX */
     #history-box {
       width: 90%;
       max-width: 400px;
@@ -237,6 +236,7 @@
       color: black;
       font-weight: bold;
       font-family: "Bangers", sans-serif;
+
       border-bottom: 2px dashed black;
       user-select: none;
     }
@@ -246,6 +246,7 @@
       opacity: 0.7;
     }
 
+    /* POPUP MESSAGES */
     .error-pop, .success-pop {
       position: fixed;
       top: 15px;
@@ -297,14 +298,14 @@
     <input id="codeInput" type="text" placeholder="Type your code... POW!" />
   </div>
 
-  <!-- NEW: RESOURCE DISPLAY BOX -->
+  <!-- NEW: RESOURCE DISPLAY -->
   <div id="resource-display"></div>
 
   <div id="history-box"></div>
 
   <script>
 
-    /* LINK MAP (Google Drive URLs) */
+    /* GOOGLE DRIVE LINKS */
     const linkMap = {
       "SEASON": "https://drive.google.com/drive/folders/1Jxn0g6X3psCoNnQ4TMImjy7g7DjpD3wB?usp=sharing",
       "RACE":   "https://drive.google.com/drive/folders/17GURQS_eGQvLybDy_yxZ_0dXVKjbSVj1?usp=sharing",
@@ -314,6 +315,7 @@
       "PROS":   "https://drive.google.com/drive/folders/13aoXzMFaiI0TcFqGT95nHzlu4bhuboCF?usp=sharing"
     };
 
+    /* ROUTE NAMES */
     const routeMap = {
       "RACE":   "Route 1",
       "JHOPE":  "Route 2",
@@ -322,7 +324,16 @@
       "TRAVEL": "Route 5"
     };
 
-    /* RANDOM ROUTE ONE TIME ONLY */
+    /* ROUTE SEQUENCES */
+    const routeSequences = {
+      "Route 1": ["SEASON", "TRAVEL", "PROS", "JHOPE", "OHMG"],
+      "Route 2": ["RACE", "SEASON", "TRAVEL", "PROS", "OHMG"],
+      "Route 3": ["JHOPE", "RACE", "TRAVEL", "SEASON", "OHMG"],
+      "Route 4": ["TRAVEL", "JHOPE", "PROS", "RACE", "OHMG"],
+      "Route 5": ["RACE", "PROS", "SEASON", "JHOPE", "OHMG"]
+    };
+
+    /* ASSIGN ROUTE ON FIRST VISIT */
     let routeCode = localStorage.getItem("routeCode");
     if (!routeCode) {
       const possible = ["SEASON", "TRAVEL", "RACE", "JHOPE", "PROS"];
@@ -331,18 +342,18 @@
       localStorage.setItem("userRoute", routeMap[routeCode]);
     }
 
-    let userRoute = routeMap[routeCode];
+    let userRoute = localStorage.getItem("userRoute");
 
-    /* UPDATE STICKER */
-    let vertical = "";
-    for (let char of routeCode) vertical += `<span>${char}</span>`;
-    document.getElementById("route-sticker").innerHTML = vertical;
+    /* UPDATE ROUTE STICKER */
+    let vert = "";
+    for (let c of routeCode) vert += `<span>${c}</span>`;
+    document.getElementById("route-sticker").innerHTML = vert;
 
     /* UPDATE ROUTE BOARD */
     document.getElementById("route-board").textContent = "ROUTE: " + userRoute;
 
 
-    /* DAILY TIMER: 3PM → 5PM */
+    /* TIMER SYSTEM */
     const timerBubble = document.getElementById("timer-bubble");
     const timerDesc   = document.getElementById("timer-desc");
 
@@ -413,11 +424,10 @@
       setTimeout(() => pop.remove(), 1500);
     }
 
-    /* SHOW LINK BUTTON */
+    /* SHOW RESOURCE BUTTON */
     function showLink(url) {
-      document.getElementById("resource-display").innerHTML = `
-        <a class="resource-btn" href="${url}" target="_blank">OPEN RESOURCE</a>
-      `;
+      document.getElementById("resource-display").innerHTML =
+        `<a class="resource-btn" href="${url}" target="_blank">OPEN RESOURCE</a>`;
     }
 
     function saveState() {
@@ -426,48 +436,39 @@
     }
 
 
-    /* INPUT HANDLER */
+    /* INPUT HANDLER WITH ROUTE SEQUENCE */
     const input = document.getElementById("codeInput");
 
     input.addEventListener("keyup", (e) => {
-      if (e.key === "Enter") {
+      if (e.key !== "Enter") return;
 
-        const value = input.value.trim().toUpperCase();
-        input.value = "";
+      const value = input.value.trim().toUpperCase();
+      input.value = "";
 
-        /* FIRST CODE MUST MATCH ASSIGNED ROUTE */
-        if (usedCodes.size === 0 && value !== routeCode) {
-          popup("error", "❌ Enter your assigned starting code!");
-          return;
-        }
+      const seq = routeSequences[userRoute];
+      const nextIndex = usedCodes.size;
+      const expected = seq[nextIndex];
 
-        if (!linkMap[value]) {
-          popup("error", "❌ INVALID!");
-          return;
-        }
-
-        if (usedCodes.has(value)) {
-          popup("error", "⛔ USED!");
-          return;
-        }
-
-        usedCodes.add(value);
-
-        showLink(linkMap[value]);
-        popup("success", "💥 BAM! RESOURCE UNLOCKED!");
-
-        const item = document.createElement("div");
-        item.className = "history-item";
-        item.textContent = value + " ✓ USED";
-
-        item.addEventListener("click", () => {
-          showLink(linkMap[value]);
-          popup("success", "🔍 REVEALED AGAIN!");
-        });
-
-        historyBox.appendChild(item);
-        saveState();
+      if (value !== expected) {
+        popup("error", `❌ WRONG CODE!\nNext correct code: ${expected}`);
+        return;
       }
+
+      usedCodes.add(value);
+      showLink(linkMap[value]);
+      popup("success", "💥 BAM! RESOURCE UNLOCKED!");
+
+      const item = document.createElement("div");
+      item.className = "history-item";
+      item.textContent = value + " ✓ USED";
+
+      item.addEventListener("click", () => {
+        showLink(linkMap[value]);
+        popup("success", "🔍 REVEALED AGAIN!");
+      });
+
+      historyBox.appendChild(item);
+      saveState();
     });
 
   </script>
