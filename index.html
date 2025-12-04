@@ -26,20 +26,39 @@
     }
 
     /* 🔥 LIQUID GLASS OVERLAY BEHIND EVERYTHING */
-    body::before {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+   /* 🎨 RAINY GLASS EFFECT */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 
-      backdrop-filter: blur(12px) saturate(180%);
-      -webkit-backdrop-filter: blur(12px) saturate(180%);
+  /* Less blur → more visible background */
+  backdrop-filter: blur(5px) brightness(0.85) saturate(160%);
+  -webkit-backdrop-filter: blur(5px) brightness(0.85) saturate(160%);
 
-      background: rgba(255, 255, 255, 0.08);  /* light tint */
-      z-index: -1;   /* stays behind all page content */
-    }
+  /* Slightly darker tint for contrast */
+  background: rgba(20, 20, 20, 0.25);
+
+  /* Light vertical rain streak pattern */
+  background-image:
+      linear-gradient(
+        rgba(255,255,255,0.07) 2px,
+        transparent 2px
+      ),
+      radial-gradient(rgba(255,255,255,0.04), transparent 70%);
+
+  background-size:
+      100% 12px,   /* rain streaks */
+      100% 100%;   /* subtle glow */
+
+  background-repeat: repeat;
+
+  z-index: -1;
+}
+
 
 
     /* --- REST OF YOUR CODE BELOW (unchanged except background removed) --- */
