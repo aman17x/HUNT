@@ -27,7 +27,35 @@
       text-align: center;
       color: yellow;
       text-shadow: 3px 3px 0px red;
-      margin-bottom: 25px;
+      margin-bottom: 18px;
+    }
+
+    /* Timer box (comic style) */
+    #timer-wrap {
+      width: 90%;
+      max-width: 400px;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+
+    .timer-bubble {
+      width: 100%;
+      padding: 10px 12px;
+      background: #fffbcc;
+      border: 4px solid black;
+      border-radius: 14px;
+      color: #111;
+      font-weight: 800;
+      box-shadow: 6px 6px 0px #ffb400;
+      font-size: 5.5vw;
+    }
+
+    .timer-small {
+      display: block;
+      font-size: 3.6vw;
+      font-weight: 700;
+      margin-top: 6px;
+      color: #222;
     }
 
     .bubble {
@@ -37,7 +65,7 @@
       background: white;
       border: 4px solid black;
       border-radius: 18px;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
       position: relative;
     }
 
@@ -65,7 +93,7 @@
     #image-display img {
       width: 90%;
       max-width: 400px;
-      margin-top: 25px;
+      margin-top: 18px;
       border: 5px solid black;
       border-radius: 12px;
       display: none;
@@ -82,7 +110,7 @@
       width: 90%;
       max-width: 400px;
       padding: 15px;
-      margin-top: 25px;
+      margin-top: 18px;
       background: white;
       border: 4px solid black;
       border-radius: 12px;
@@ -96,6 +124,7 @@
       color: black;
       font-weight: bold;
       border-bottom: 2px dashed black;
+      user-select: none;
     }
 
     .history-item:active {
@@ -134,12 +163,24 @@
       70% { transform: translateX(-50%) scale(1.2); }
       100% { transform: translateX(-50%) scale(1); }
     }
+
+    /* small tweaks for very small screens */
+    @media (max-width: 360px) {
+      .timer-bubble { font-size: 6.5vw; }
+      .timer-small { font-size: 4.2vw; }
+    }
   </style>
 </head>
 
 <body>
 
   <h1>SCAN THE SECRET CODE!</h1>
+
+  <!-- Timer display -->
+  <div id="timer-wrap">
+    <div id="timer-bubble" class="timer-bubble">LOADING TIMER...</div>
+    <div id="timer-desc" class="timer-small">Using your device time</div>
+  </div>
 
   <div class="bubble">
     <input id="codeInput" type="text" placeholder="Type your code... POW!" />
@@ -160,11 +201,11 @@
     /* FINAL FIXED UPPERCASE CODEMAP */
     const codeMap = {
       "SEASON": "img1",
-      "JHOPE": "img2",
+      "JHOPE":  "img2",
       "TRAVEL": "img3",
-      "OHMG": "img4",
-      "PROS": "img5",
-      "RACE": "img6"
+      "OHMG":   "img4",
+      "PROS":   "img5",
+      "RACE":   "img6"
     };
 
     let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
@@ -190,37 +231,115 @@
     function showImage(id) {
       document.querySelectorAll("#image-display img")
         .forEach(img => img.style.display = "none");
-      document.getElementById(id).style.display = "block";
+      const el = document.getElementById(id);
+      if (el) el.style.display = "block";
     }
 
-    /* FIXED RESTORE CLICK + SPLIT + TRIM */
-    function restoreState() {
-      historyBox.innerHTML = localStorage.getItem("historyHTML") || "";
+    /* ------------- TIMER LOGIC ------------- */
+    const timerBubble = document.getElementById("timer-bubble");
+    const timerDesc = document.getElementById("timer-desc");
+
+    // Target window: Saturday, 6 December 2025, 15:00 to 17:00 (device local time)
+    function getTargetTimes() {
+      // year 2025, month 11 => December (JS months 0-indexed)
+      const year = 2025, month = 11, day = 6;
+      const start = new Date(year, month, day, 15, 0, 0, 0); // 15:00 local
+      const end   = new Date(year, month, day, 17, 0, 0, 0); // 17:00 local
+      return { start, end };
+    }
+
+    function formatTime(ms) {
+      if (ms < 0) ms = 0;
+      const total = Math.floor(ms / 1000);
+      const hours = Math.floor(total / 3600);
+      const mins = Math.floor((total % 3600) / 60);
+      const secs = total % 60;
+      const hh = String(hours).padStart(2, '0');
+      const mm = String(mins).padStart(2, '0');
+      const ss = String(secs).padStart(2, '0');
+      return `${hh}:${mm}:${ss}`;
+    }
+
+    function updateTimerDisplay() {
+      const now = new Date();
+      const { start, end } = getTargetTimes();
+
+      if (now < start) {
+        // Not started yet
+        timerBubble.textContent = "TIMER NOT STARTED";
+        timerDesc.textContent = `Starts at 03:00 PM — Sat, Dec 6, 2025 (device time)`;
+      } else if (now >= end) {
+        // Finished
+        timerBubble.textContent = "TIME'S UP!";
+        timerDesc.textContent = `Event ended at 05:00 PM — Sat, Dec 6, 2025`;
+      } else {
+        // Active window: show time remaining until end (option A)
+        const remainingMs = end - now;
+        timerBubble.textContent = `Time Left: ${formatTime(remainingMs)}`;
+        timerDesc.textContent = `Ends at 05:00 PM — Sat, Dec 6, 2025`;
+      }
+    }
+
+    // run immediately then every second
+    updateTimerDisplay();
+    const timerInterval = setInterval(updateTimerDisplay, 1000);
+
+    /* ------------- RESTORE + HISTORY HANDLERS ------------- */
+    function attachHistoryClickHandlers() {
+      [...historyBox.children].forEach(item => {
+        // Avoid duplicate listeners — remove then add
+        item.replaceWith(item.cloneNode(true));
+      });
 
       [...historyBox.children].forEach(item => {
         item.addEventListener("click", () => {
           const rawCode = item.textContent.split("✓")[0];
           const code = rawCode.trim().toUpperCase();
           const imgId = codeMap[code];
-
           if (imgId) {
             showImage(imgId);
             lastImage = imgId;
             saveState();
             popup("success", "🔍 REVEALED AGAIN!");
+          } else {
+            // if mapping missing, show an error silently
+            popup("error", "⚠️ Mapping missing");
           }
         });
       });
+    }
+
+    function restoreState() {
+      historyBox.innerHTML = localStorage.getItem("historyHTML") || "";
+
+      // Rebuild usedCodes set from saved array (if any)
+      const savedUsed = JSON.parse(localStorage.getItem("usedCodes") || "[]");
+      usedCodes = new Set(savedUsed);
+
+      attachHistoryClickHandlers();
 
       if (lastImage) showImage(lastImage);
     }
 
     restoreState();
 
+    /* ------------- INPUT HANDLER ------------- */
     input.addEventListener("keyup", (e) => {
       if (e.key === "Enter") {
         const value = input.value.trim().toUpperCase();
         input.value = "";
+
+        // Check timer restrictions: allow codes only during the active window
+        const now = new Date();
+        const { start, end } = getTargetTimes();
+        if (now < start) {
+          popup("error", "⏳ TIMER NOT STARTED!");
+          return;
+        }
+        if (now >= end) {
+          popup("error", "⛔ TIME'S UP!");
+          return;
+        }
 
         if (!codeMap[value]) {
           popup("error", "❌ INVALID!");
@@ -251,6 +370,8 @@
             lastImage = mappedId;
             saveState();
             popup("success", "🔍 REVEALED AGAIN!");
+          } else {
+            popup("error", "⚠️ Mapping missing");
           }
         });
 
@@ -259,6 +380,11 @@
         lastImage = imgId;
         saveState();
       }
+    });
+
+    // Clean up interval when page unloads (good practice)
+    window.addEventListener('beforeunload', () => {
+      clearInterval(timerInterval);
     });
   </script>
 
