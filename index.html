@@ -326,12 +326,13 @@
 
     /* ROUTE SEQUENCES */
     const routeSequences = {
-      "Route 1": ["SEASON", "TRAVEL", "PROS", "JHOPE", "OHMG"],
-      "Route 2": ["RACE", "SEASON", "TRAVEL", "PROS", "OHMG"],
-      "Route 3": ["JHOPE", "RACE", "TRAVEL", "SEASON", "OHMG"],
-      "Route 4": ["TRAVEL", "JHOPE", "PROS", "RACE", "OHMG"],
-      "Route 5": ["RACE", "PROS", "SEASON", "JHOPE", "OHMG"]
-    };
+  "RACE":   ["RACE", "SEASON", "TRAVEL", "PROS", "JHOPE", "OHMG"],
+  "JHOPE":  ["JHOPE", "RACE", "SEASON", "TRAVEL", "PROS", "OHMG"],
+  "PROS":   ["PROS", "JHOPE", "RACE", "TRAVEL", "SEASON", "OHMG"],
+  "SEASON": ["SEASON", "TRAVEL", "JHOPE", "PROS", "RACE", "OHMG"],
+  "TRAVEL": ["TRAVEL", "RACE", "PROS", "SEASON", "JHOPE", "OHMG"]
+};
+
 
     /* ASSIGN ROUTE ON FIRST VISIT */
     let routeCode = localStorage.getItem("routeCode");
