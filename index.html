@@ -31,9 +31,7 @@
       margin-bottom: 18px;
     }
 
-    /* ------------------------------------- */
     /* COMIC VERTICAL ROUTE STICKER */
-    /* ------------------------------------- */
     #route-sticker {
       position: fixed;
       left: 5px;
@@ -215,7 +213,7 @@
 
 <body>
 
-  <!-- COMIC VERTICAL ROUTE STICKER -->
+  <!-- VERTICAL COMIC STICKER -->
   <div id="route-sticker"></div>
 
   <h1>SCAN THE SECRET CODE!</h1>
@@ -283,8 +281,7 @@
     document.getElementById("route-sticker").innerHTML = vertical;
 
     /* UPDATE ROUTE BOARD */
-    const routeBoard = document.getElementById("route-board");
-    routeBoard.textContent = "ROUTE: " + userRoute;
+    document.getElementById("route-board").textContent = "ROUTE: " + userRoute;
 
     /* DAILY TIMER (3 PM to 5 PM) */
     const timerBubble = document.getElementById("timer-bubble");
@@ -384,6 +381,14 @@
 
         const value = input.value.trim().toUpperCase();
         input.value = "";
+
+        /* NEW FEATURE: First code must match assigned route */
+        if (usedCodes.size === 0) {
+          if (value !== routeCode) {
+            popup("error", "❌ Enter your assigned starting code!");
+            return;
+          }
+        }
 
         if (!codeMap[value]) {
           popup("error", "❌ INVALID!");
