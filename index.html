@@ -126,16 +126,14 @@
         -2px -2px 0px #000;
     }
 
-    /* TIMER LOWER TEXT (WINNERS!! SEE YOU AT THE CON!) */
+    /* TIMER SMALL TEXT */
     .timer-small {
       display: block;
       font-family: "Bangers", sans-serif;
       font-size: 4.5vw;
       font-weight: 900;
       margin-top: 6px;
-
       color: white;
-
       text-shadow:
         3px 3px 0px #000,
         -2px -2px 0px #ff3131;
@@ -193,21 +191,28 @@
       font-family: "Bangers", sans-serif;
     }
 
-    #image-display img {
-      width: 90%;
-      max-width: 400px;
-      margin-top: 18px;
-      border: 5px solid black;
-      border-radius: 12px;
-      display: none;
-
-      box-shadow: 6px 6px 0px yellow;
-      animation: bam 0.4s ease;
+    /* RESOURCE BUTTON (new) */
+    #resource-display {
+      margin-top: 20px;
+      text-align: center;
     }
 
-    @keyframes bam {
-      from { transform: scale(0.5) rotate(-10deg); opacity: 0; }
-      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    .resource-btn {
+      padding: 14px 22px;
+      font-size: 7vw;
+      font-family: "Bangers", sans-serif;
+      background: #ffeb00;
+      color: black;
+      border: 4px solid black;
+      border-radius: 14px;
+      box-shadow: 6px 6px 0px #ff3131;
+      text-decoration: none;
+      display: inline-block;
+      transition: transform 0.1s;
+    }
+
+    .resource-btn:active {
+      transform: scale(0.95);
     }
 
     #history-box {
@@ -230,7 +235,6 @@
       color: black;
       font-weight: bold;
       font-family: "Bangers", sans-serif;
-
       border-bottom: 2px dashed black;
       user-select: none;
     }
@@ -291,26 +295,21 @@
     <input id="codeInput" type="text" placeholder="Type your code... POW!" />
   </div>
 
-  <div id="image-display">
-    <img id="img1" src="bm.png">
-    <img id="img2" src="jb.png">
-    <img id="img3" src="mb.png">
-    <img id="img4" src="oh.png">
-    <img id="img5" src="pp.png">
-    <img id="img6" src="ps.png">
-  </div>
+  <!-- NEW: RESOURCE DISPLAY BOX -->
+  <div id="resource-display"></div>
 
   <div id="history-box"></div>
 
   <script>
 
-    const codeMap = {
-      "SEASON": "img1",
-      "JHOPE": "img2",
-      "TRAVEL": "img3",
-      "OHMG": "img4",
-      "PROS": "img5",
-      "RACE": "img6"
+    /* LINK MAP (Google Drive URLs) */
+    const linkMap = {
+      "SEASON": "https://drive.google.com/drive/folders/1Jxn0g6X3psCoNnQ4TMImjy7g7DjpD3wB?usp=sharing",
+      "RACE":   "https://drive.google.com/drive/folders/17GURQS_eGQvLybDy_yxZ_0dXVKjbSVj1?usp=sharing",
+      "JHOPE":  "https://drive.google.com/drive/folders/14UUnx_jbYR1theKDJ9zrRM9GAbx6HU0z?usp=sharing",
+      "TRAVEL": "https://drive.google.com/drive/folders/1ZDqj86bINVpjk1fe5bw9C9wNZ1-uCmBi?usp=sharing",
+      "OHMG":   "https://drive.google.com/drive/folders/1X8OdJD20w8KJvSTiFxt3Rup3ukd5_Cxg?usp=sharing",
+      "PROS":   "https://drive.google.com/drive/folders/13aoXzMFaiI0TcFqGT95nHzlu4bhuboCF?usp=sharing"
     };
 
     const routeMap = {
@@ -386,7 +385,6 @@
 
     /* STATE RESTORE */
     let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
-    let lastImage = localStorage.getItem("lastImage") || null;
     const historyBox = document.getElementById("history-box");
 
     function restoreState() {
@@ -395,17 +393,10 @@
       [...historyBox.children].forEach(item => {
         item.addEventListener("click", () => {
           const code = item.textContent.split("✓")[0].trim().toUpperCase();
-          const imgId = codeMap[code];
-          if (imgId) {
-            showImage(imgId);
-            lastImage = imgId;
-            saveState();
-            popup("success", "🔍 REVEALED AGAIN!");
-          }
+          showLink(linkMap[code]);
+          popup("success", "🔍 REVEALED AGAIN!");
         });
       });
-
-      if (lastImage) showImage(lastImage);
     }
 
     restoreState();
@@ -420,16 +411,15 @@
       setTimeout(() => pop.remove(), 1500);
     }
 
-    /* IMAGE CONTROL */
-    function showImage(id) {
-      document.querySelectorAll("#image-display img")
-        .forEach(img => img.style.display = "none");
-      document.getElementById(id).style.display = "block";
+    /* SHOW LINK BUTTON */
+    function showLink(url) {
+      document.getElementById("resource-display").innerHTML = `
+        <a class="resource-btn" href="${url}" target="_blank">OPEN RESOURCE</a>
+      `;
     }
 
     function saveState() {
       localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
-      localStorage.setItem("lastImage", lastImage);
       localStorage.setItem("historyHTML", historyBox.innerHTML);
     }
 
@@ -449,7 +439,7 @@
           return;
         }
 
-        if (!codeMap[value]) {
+        if (!linkMap[value]) {
           popup("error", "❌ INVALID!");
           return;
         }
@@ -460,25 +450,20 @@
         }
 
         usedCodes.add(value);
-        const imgId = codeMap[value];
 
-        showImage(imgId);
-        popup("success", "💥 BAM! FOUND!");
+        showLink(linkMap[value]);
+        popup("success", "💥 BAM! RESOURCE UNLOCKED!");
 
         const item = document.createElement("div");
         item.className = "history-item";
         item.textContent = value + " ✓ USED";
 
         item.addEventListener("click", () => {
-          showImage(imgId);
-          lastImage = imgId;
-          saveState();
+          showLink(linkMap[value]);
           popup("success", "🔍 REVEALED AGAIN!");
         });
 
         historyBox.appendChild(item);
-
-        lastImage = imgId;
         saveState();
       }
     });
