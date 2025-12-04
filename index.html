@@ -230,49 +230,64 @@
     }
 
     /* ---------------- TIMER (Visual Only) ---------------- */
-/* ---------------- TIMER (TEST MODE) ---------------- */
-// TEST MODE: Start now, end 2 minutes later
-function getTargetTimes() {
-  const now = new Date();
-  const start = new Date(now.getTime());            // start = NOW
-  const end   = new Date(now.getTime() + 2*60*1000); // end = NOW + 2 minutes
-  return { start, end };
-}
+    const timerBubble = document.getElementById("timer-bubble");
+    const timerDesc   = document.getElementById("timer-desc");
 
-const timerBubble = document.getElementById("timer-bubble");
-const timerDesc   = document.getElementById("timer-desc");
+    function getTargetTimes() {
+      const year = 2025, month = 11, day = 6;  // December 6
+      const start = new Date(year, month, day, 15, 0, 0); // 3 PM
+      const end   = new Date(year, month, day, 17, 0, 0); // 5 PM
+      return { start, end };
+    }
 
-function formatTime(ms) {
-  if (ms < 0) ms = 0;
-  const sec = Math.floor(ms / 1000);
-  const h = String(Math.floor(sec / 3600)).padStart(2, '0');
-  const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
-  const s = String(sec % 60).padStart(2, '0');
-  return `${h}:${m}:${s}`;
-}
+    function formatTime(ms) {
+      if (ms < 0) ms = 0;
+      const sec = Math.floor(ms / 1000);
+      const h = String(Math.floor(sec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((sec % 3600) / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${h}:${m}:${s}`;
+    }
 
-function updateTimer() {
-  const now = new Date();
-  const { start, end } = getTargetTimes();
+    function updateTimer() {
+      const now = new Date();
+      const { start, end } = getTargetTimes();
 
-  if (now < start) {
-    const untilStart = start - now;
-    timerBubble.textContent = `Starts In: ${formatTime(untilStart)}`;
-    timerDesc.textContent = "Test timer (start = now)";
-  }
-  else if (now >= start && now < end) {
-    const left = end - now;
-    timerBubble.textContent = `Time Left: ${formatTime(left)}`;
-    timerDesc.textContent = "Test timer (ends in 2 minutes)";
-  }
-  else {
-    timerBubble.textContent = "TIME'S UP!";
-    timerDesc.textContent = "Test timer complete";
-  }
-}
+      if (now < start) {
+        const untilStart = start - now;
+        timerBubble.textContent = `Starts In: ${formatTime(untilStart)}`;
+        timerDesc.textContent = "Starts at 03:00 PM — Dec 6";
+      }
+      else if (now >= start && now < end) {
+        const left = end - now;
+        timerBubble.textContent = `Time Left: ${formatTime(left)}`;
+        timerDesc.textContent = "Ends at 05:00 PM — Dec 6";
+      }
+      else {
+        timerBubble.textContent = "TIME'S UP!";
+        timerDesc.textContent = "Event Ended";
+      }
+    }
 
-updateTimer();
-setInterval(updateTimer, 1000);
+    updateTimer();
+    setInterval(updateTimer, 1000);
+
+    /* ---------------- RESTORE ---------------- */
+    function restoreState() {
+      historyBox.innerHTML = localStorage.getItem("historyHTML") || "";
+
+      [...historyBox.children].forEach(item => {
+        item.addEventListener("click", () => {
+          const code = item.textContent.split("✓")[0].trim().toUpperCase();
+          const imgId = codeMap[code];
+          if (imgId) {
+            showImage(imgId);
+            lastImage = imgId;
+            saveState();
+            popup("success", "🔍 REVEALED AGAIN!");
+          }
+        });
+      });
 
       if (lastImage) showImage(lastImage);
     }
