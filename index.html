@@ -317,10 +317,10 @@
       const { start, end } = getDailyTimes();
       if (now < start) {
         timerBubble.textContent = `Starts In: ${formatTime(start - now)}`;
-        timerDesc.textContent = "Winners!! See you at the con!";
+        
       } else if (now >= start && now < end) {
         timerBubble.textContent = `Time Left: ${formatTime(end - now)}`;
-        timerDesc.textContent = "Winners!! See you at the con!";
+        
       } else {
         timerBubble.textContent = "TIME'S UP!";
         timerDesc.textContent = "WINNERS!! SEE YOU AT THE CON!";
