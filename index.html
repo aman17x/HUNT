@@ -9,33 +9,26 @@
   <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
 
   <style>
-    /* MAIN BACKGROUND (RAINY GLASS EFFECT + IMAGE) */
+    /* MAIN BACKGROUND */
     body {
       margin: 0;
       padding: 20px 10px;
       font-family: "Comic Sans MS", "Bangers", sans-serif;
       background: url("hunt_web_bg2.jpg") center/cover no-repeat fixed;
-      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
       overflow-x: hidden;
+      position: relative;
     }
 
-    /* RAINY GLASS OVERLAY */
+    /* RAINY GLASS EFFECT */
     body::before {
       content: "";
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       backdrop-filter: blur(5px) brightness(0.85) saturate(160%);
-      background: rgba(20, 20, 20, 0.25);
-      background-image:
-        linear-gradient(rgba(255,255,255,0.06) 2px, transparent 2px),
-        radial-gradient(rgba(255,255,255,0.04), transparent 70%);
-      background-size: 100% 12px, 100% 100%;
+      background: rgba(20,20,20,0.25);
       z-index: -1;
     }
 
@@ -49,24 +42,7 @@
       text-shadow: 4px 4px 0px #000, -2px -2px 0px #ff3131;
     }
 
-    /* Route board */
-    #route-board {
-      width: 90%;
-      max-width: 400px;
-      background: white;
-      border: 4px solid black;
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 12px;
-      text-align: center;
-      font-size: 6vw;
-      color: black;
-      font-weight: 900;
-      font-family: "Bangers", sans-serif;
-      box-shadow: 6px 6px 0px #00d0ff;
-    }
-
-    /* Input bubble */
+    /* INPUT BUBBLE */
     .bubble {
       width: 90%;
       max-width: 400px;
@@ -74,7 +50,7 @@
       background: white;
       border: 4px solid black;
       border-radius: 18px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       position: relative;
     }
     .bubble::after {
@@ -82,7 +58,6 @@
       position: absolute;
       bottom: -18px;
       left: 25px;
-      width: 0; height: 0;
       border-top: 18px solid white;
       border-left: 18px solid transparent;
       border-right: 18px solid transparent;
@@ -99,24 +74,22 @@
       letter-spacing: 3px;
     }
 
-    /* Resource button */
+    /* RESOURCE BUTTON */
     #resource-display { margin-top: 20px; text-align: center; }
     .resource-btn {
       padding: 14px 22px;
       font-size: 7vw;
       font-family: "Bangers", sans-serif;
       background: #ffeb00;
-      color: black;
       border: 4px solid black;
       border-radius: 14px;
-      box-shadow: 6px 6px 0px #ff3131;
       text-decoration: none;
+      color: black;
+      box-shadow: 6px 6px 0px #ff3131;
       display: inline-block;
-      transition: transform 0.1s;
     }
-    .resource-btn:active { transform: scale(0.95); }
 
-    /* Popup */
+    /* POPUP */
     .error-pop, .success-pop {
       position: fixed;
       top: 15px;
@@ -128,8 +101,8 @@
       border-radius: 10px;
       animation: pop 0.3s forwards;
       z-index: 999;
-      white-space: nowrap;
       font-family: "Bangers", sans-serif;
+      white-space: nowrap;
     }
     .error-pop { background: red; color: white; }
     .success-pop { background: yellow; color: black; }
@@ -145,9 +118,6 @@
 
   <h1>SCAN THE SECRET CODE!</h1>
 
-  <!-- ROUTE BOARD (still required for knowing route) -->
-  <div id="route-board">ROUTE: Not Assigned</div>
-
   <!-- INPUT AREA -->
   <div class="bubble">
     <input id="codeInput" type="password" placeholder="Type your code... POW!" autocomplete="off" />
@@ -157,6 +127,16 @@
   <div id="resource-display"></div>
 
 <script>
+/* ONE FIXED ROUTE ONLY */
+const fixedRoute = [
+  "RACE",
+  "SEASON",
+  "TRAVEL",
+  "PROS",
+  "JHOPE",
+  "OHMG"
+];
+
 /* Google Drive links */
 const linkMap = {
   "SEASON": "https://drive.google.com/drive/folders/1Jxn0g6X3psCoNnQ4TMImjy7g7DjpD3wB?usp=sharing",
@@ -167,62 +147,30 @@ const linkMap = {
   "PROS":   "https://drive.google.com/drive/folders/13aoXzMFaiI0TcFqGT95nHzlu4bhuboCF?usp=sharing"
 };
 
-/* Display Route Names */
-const routeMap = {
-  "RACE": "Route 1",
-  "JHOPE": "Route 2",
-  "PROS": "Route 3",
-  "SEASON": "Route 4",
-  "TRAVEL": "Route 5"
-};
-
-/* Universal route sequences */
-const routeSequences = {
-  "RACE":   ["RACE", "SEASON", "TRAVEL", "PROS", "JHOPE", "OHMG"],
-  "JHOPE":  ["JHOPE", "RACE", "SEASON", "TRAVEL", "PROS", "OHMG"],
-  "PROS":   ["PROS", "JHOPE", "RACE", "TRAVEL", "SEASON", "OHMG"],
-  "SEASON": ["SEASON", "TRAVEL", "JHOPE", "PROS", "RACE", "OHMG"],
-  "TRAVEL": ["TRAVEL", "RACE", "PROS", "SEASON", "JHOPE", "OHMG"]
-};
-
-/* Assign starting route */
-let routeCode = localStorage.getItem("routeCode");
-if (!routeCode) {
-  const possible = ["SEASON", "TRAVEL", "RACE", "JHOPE", "PROS"];
-  routeCode = possible[Math.floor(Math.random() * possible.length)];
-  localStorage.setItem("routeCode", routeCode);
-  localStorage.setItem("userRoute", routeMap[routeCode]);
-}
-
-let userRoute = localStorage.getItem("userRoute");
-
-/* Update route board */
-document.getElementById("route-board").textContent = "ROUTE: " + userRoute;
-
-/* used codes */
+/* Track used codes */
 let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
 
-/* Popup */
-function popup(type, message) {
-  const pop = document.createElement("div");
-  pop.className = type === "error" ? "error-pop" : "success-pop";
-  pop.textContent = message;
-  document.body.appendChild(pop);
-  setTimeout(() => pop.remove(), 1500);
+/* POPUP */
+function popup(type, msg) {
+  const p = document.createElement("div");
+  p.className = type === "error" ? "error-pop" : "success-pop";
+  p.textContent = msg;
+  document.body.appendChild(p);
+  setTimeout(() => p.remove(), 1500);
 }
 
-/* Show link */
+/* SHOW RESOURCE LINK */
 function showLink(url) {
   document.getElementById("resource-display").innerHTML =
     `<a class="resource-btn" href="${url}" target="_blank">Click here for clue</a>`;
 }
 
-/* Save state */
-function saveState() {
+/* SAVE STATE */
+function save() {
   localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
 }
 
-/* Input handler */
+/* INPUT HANDLING */
 const input = document.getElementById("codeInput");
 
 input.addEventListener("keyup", (e) => {
@@ -232,35 +180,35 @@ input.addEventListener("keyup", (e) => {
   input.value = "";
 
   if (!linkMap[value]) {
-    popup("error", "❌ INVALID!");
+    popup("error", "❌ INVALID CODE!");
     return;
   }
 
-  const seq = routeSequences[routeCode];
   const nextIndex = usedCodes.size;
-  const expected = seq[nextIndex];
+  const expected = fixedRoute[nextIndex];
 
   if (value !== expected) {
-    popup("error", "❌ WRONG CODE!");
+    popup("error", "❌ WRONG ORDER!");
     return;
   }
 
   if (usedCodes.has(value)) {
-    popup("error", "⛔ USED!");
+    popup("error", "⛔ ALREADY USED!");
     return;
   }
 
   usedCodes.add(value);
-  showLink(linkMap[value]);
   popup("success", "💥 RESOURCE UNLOCKED!");
-  saveState();
+  showLink(linkMap[value]);
+  save();
 
-  if (usedCodes.size === seq.length) {
+  if (usedCodes.size === fixedRoute.length) {
     popup("success", "🎉 ROUTE COMPLETE!");
   }
 });
 
 input.focus();
 </script>
+
 </body>
 </html>
