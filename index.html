@@ -3,13 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Comic Code Scanner — Final</title>
+  <title>Comic Code Scanner</title>
 
-  <!-- Comic font -->
   <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
 
   <style>
-    /* MAIN BACKGROUND */
     body {
       margin: 0;
       padding: 20px 10px;
@@ -18,11 +16,8 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      overflow-x: hidden;
-      position: relative;
     }
 
-    /* RAINY GLASS EFFECT */
     body::before {
       content: "";
       position: fixed;
@@ -32,17 +27,69 @@
       z-index: -1;
     }
 
-    /* TITLE */
     h1 {
       font-size: 8vw;
       text-align: center;
       color: #fff700;
-      font-family: "Bangers", sans-serif;
-      margin-bottom: 18px;
       text-shadow: 4px 4px 0px #000, -2px -2px 0px #ff3131;
     }
 
-    /* INPUT BUBBLE */
+    /* TEAM FORM SCREEN */
+    #team-form-screen {
+      width: 90%;
+      max-width: 450px;
+      background: white;
+      border: 4px solid black;
+      border-radius: 18px;
+      padding: 20px;
+      margin-top: 30px;
+      font-family: "Bangers", sans-serif;
+    }
+
+    #team-form-screen h2 {
+      text-align: center;
+      font-size: 7vw;
+      text-shadow: 2px 2px 0px #ff3131;
+    }
+
+    label {
+      font-size: 5vw;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0 15px 0;
+      font-family: "Bangers", sans-serif;
+      font-size: 5vw;
+      border: 3px solid black;
+      border-radius: 10px;
+    }
+
+    button {
+      padding: 12px;
+      width: 100%;
+      font-size: 6vw;
+      font-family: "Bangers", sans-serif;
+      background: #ffeb00;
+      border: 4px solid black;
+      border-radius: 14px;
+      box-shadow: 6px 6px 0px #ff3131;
+    }
+
+    /* MAIN SCREEN */
+    #main-screen { display: none; width: 100%; }
+
+    #team-info {
+      font-size: 5vw;
+      color: white;
+      text-shadow: 3px 3px 0px #000;
+      text-align: center;
+      white-space: pre-line;
+      margin-bottom: 10px;
+    }
+
     .bubble {
       width: 90%;
       max-width: 400px;
@@ -50,43 +97,18 @@
       background: white;
       border: 4px solid black;
       border-radius: 18px;
-      margin-bottom: 14px;
+      margin: 14px auto;
       position: relative;
     }
-    .bubble::after {
-      content: "";
-      position: absolute;
-      bottom: -18px;
-      left: 25px;
-      border-top: 18px solid white;
-      border-left: 18px solid transparent;
-      border-right: 18px solid transparent;
-      filter: drop-shadow(3px 3px 0px black);
-    }
 
-    input {
+    input[type="password"] {
       width: 100%;
       border: none;
       outline: none;
-      font-size: 5vw;
       background: transparent;
-      font-family: "Bangers", sans-serif;
+      font-size: 5vw;
       letter-spacing: 3px;
-    }
-
-    /* RESOURCE BUTTON */
-    #resource-display { margin-top: 20px; text-align: center; }
-    .resource-btn {
-      padding: 14px 22px;
-      font-size: 7vw;
       font-family: "Bangers", sans-serif;
-      background: #ffeb00;
-      border: 4px solid black;
-      border-radius: 14px;
-      text-decoration: none;
-      color: black;
-      box-shadow: 6px 6px 0px #ff3131;
-      display: inline-block;
     }
 
     /* POPUP */
@@ -101,8 +123,8 @@
       border-radius: 10px;
       animation: pop 0.3s forwards;
       z-index: 999;
-      font-family: "Bangers", sans-serif;
       white-space: nowrap;
+      font-family: "Bangers", sans-serif;
     }
     .error-pop { background: red; color: white; }
     .success-pop { background: yellow; color: black; }
@@ -112,43 +134,116 @@
       70% { transform: translateX(-50%) scale(1.2); }
       100% { transform: translateX(-50%) scale(1); }
     }
+
+    /* CIRCULAR STICKER TOP-LEFT */
+    #code-counter {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      background: #ffeb00;
+      color: black;
+      border: 4px solid black;
+      font-family: "Bangers", sans-serif;
+      font-size: 5vw;
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 4px 4px 0px #ff3131;
+      z-index: 9999;
+    }
+
   </style>
 </head>
 <body>
 
-  <h1>SCAN THE SECRET CODE!</h1>
+  <!-- CIRCULAR COUNTER STICKER -->
+  <div id="code-counter" style="display:none;">0/3</div>
 
-  <!-- INPUT AREA -->
-  <div class="bubble">
-    <input id="codeInput" type="password" placeholder="Type your code... POW!" autocomplete="off" />
+  <!-- TEAM FORM SCREEN -->
+  <div id="team-form-screen">
+    <h2>Team Registration</h2>
+
+    <label>Number of Players</label>
+    <select id="playerCount">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
+
+    <div id="playerInputs"></div>
+
+    <label>Team Name</label>
+    <input type="text" id="teamName" placeholder="Enter team name" />
+
+    <button id="submitTeam">START</button>
   </div>
 
-  <!-- RESOURCE BUTTON -->
-  <div id="resource-display"></div>
+  <!-- MAIN SCREEN -->
+  <div id="main-screen">
+    <h1>SCAN THE SECRET CODE!</h1>
+    <div id="team-info"></div>
+
+    <div class="bubble">
+      <input id="codeInput" type="password" placeholder="Enter Code..." autocomplete="off" />
+    </div>
+  </div>
 
 <script>
-/* ONE FIXED ROUTE ONLY */
-const fixedRoute = [
-  "RACE",
-  "SEASON",
-  "TRAVEL",
-  "PROS",
-  "JHOPE",
-  "OHMG"
-];
+/* FIXED ROUTE ONLY */
+const fixedRoute = ["MAHIMA", "CHIKU", "ASHISH"];
 
-/* Google Drive links */
-const linkMap = {
-  "SEASON": "https://drive.google.com/drive/folders/1Jxn0g6X3psCoNnQ4TMImjy7g7DjpD3wB?usp=sharing",
-  "RACE":   "https://drive.google.com/drive/folders/17GURQS_eGQvLybDy_yxZ_0dXVKjbSVj1?usp=sharing",
-  "JHOPE":  "https://drive.google.com/drive/folders/14UUnx_jbYR1theKDJ9zrRM9GAbx6HU0z?usp=sharing",
-  "TRAVEL": "https://drive.google.com/drive/folders/1ZDqj86bINVpjk1fe5bw9C9wNZ1-uCmBi?usp=sharing",
-  "OHMG":   "https://drive.google.com/drive/folders/1X8OdJD20w8KJvSTiFxt3Rup3ukd5_Cxg?usp=sharing",
-  "PROS":   "https://drive.google.com/drive/folders/13aoXzMFaiI0TcFqGT95nHzlu4bhuboCF?usp=sharing"
-};
+/* TEAM FORM LOGIC */
+const playerInputsDiv = document.getElementById("playerInputs");
+const playerCountSelect = document.getElementById("playerCount");
 
-/* Track used codes */
-let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
+function renderPlayerInputs() {
+  let count = parseInt(playerCountSelect.value);
+  playerInputsDiv.innerHTML = "";
+  for (let i = 1; i <= count; i++) {
+    playerInputsDiv.innerHTML += `
+      <label>Player ${i} Name</label>
+      <input type="text" id="player${i}" placeholder="Player ${i}">
+    `;
+  }
+}
+playerCountSelect.addEventListener("change", renderPlayerInputs);
+renderPlayerInputs();
+
+/* LOAD TEAM IF ALREADY REGISTERED */
+if (localStorage.getItem("teamData")) showMainScreen();
+
+document.getElementById("submitTeam").addEventListener("click", () => {
+  let count = parseInt(playerCountSelect.value);
+  let players = [];
+
+  for (let i = 1; i <= count; i++) {
+    let p = document.getElementById("player" + i).value.trim();
+    if (!p) return popup("error", "Enter all player names!");
+    players.push(p);
+  }
+
+  let teamName = document.getElementById("teamName").value.trim();
+  if (!teamName) return popup("error", "Enter team name!");
+
+  let teamData = { count, players, teamName };
+  localStorage.setItem("teamData", JSON.stringify(teamData));
+
+  showMainScreen();
+});
+
+function showMainScreen() {
+  document.getElementById("team-form-screen").style.display = "none";
+  document.getElementById("main-screen").style.display = "block";
+  document.getElementById("code-counter").style.display = "flex";
+
+  let data = JSON.parse(localStorage.getItem("teamData"));
+  document.getElementById("team-info").textContent =
+    `TEAM: ${data.teamName}\nPlayers: ${data.players.join(", ")}`;
+}
 
 /* POPUP */
 function popup(type, msg) {
@@ -159,13 +254,18 @@ function popup(type, msg) {
   setTimeout(() => p.remove(), 1500);
 }
 
-/* SHOW RESOURCE LINK */
-function showLink(url) {
-  document.getElementById("resource-display").innerHTML =
-    `<a class="resource-btn" href="${url}" target="_blank">Click here for clue</a>`;
+/* USED CODES SYSTEM */
+let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
+
+updateCounter();
+
+/* Update circular sticker */
+function updateCounter() {
+  document.getElementById("code-counter").textContent =
+    `${usedCodes.size}/3`;
 }
 
-/* SAVE STATE */
+/* Save state */
 function save() {
   localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
 }
@@ -179,35 +279,27 @@ input.addEventListener("keyup", (e) => {
   const value = input.value.trim().toUpperCase();
   input.value = "";
 
-  if (!linkMap[value]) {
+  const expected = fixedRoute[usedCodes.size];
+
+  if (!fixedRoute.includes(value)) {
     popup("error", "❌ INVALID CODE!");
     return;
   }
-
-  const nextIndex = usedCodes.size;
-  const expected = fixedRoute[nextIndex];
 
   if (value !== expected) {
     popup("error", "❌ WRONG ORDER!");
     return;
   }
 
-  if (usedCodes.has(value)) {
-    popup("error", "⛔ ALREADY USED!");
-    return;
-  }
-
   usedCodes.add(value);
-  popup("success", "💥 RESOURCE UNLOCKED!");
-  showLink(linkMap[value]);
+  updateCounter();
+  popup("success", "💥 CODE ACCEPTED!");
   save();
 
   if (usedCodes.size === fixedRoute.length) {
     popup("success", "🎉 ROUTE COMPLETE!");
   }
 });
-
-input.focus();
 </script>
 
 </body>
