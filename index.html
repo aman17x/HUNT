@@ -100,7 +100,7 @@
       background: white;
       border: 4px solid black;
       border-radius: 18px;
-      margin: 14px auto;
+      margin: 14px auto 8px auto;
       position: relative;
     }
 
@@ -200,6 +200,9 @@
     <input id="codeInput" type="password" placeholder="Enter Code..." autocomplete="off" />
   </div>
 
+  <!-- NEW SUBMIT BUTTON -->
+  <button id="submitCode">SUBMIT CODE</button>
+
   <div id="questionsBox" class="questions-box"></div>
 </div>
 
@@ -207,7 +210,7 @@
 /* FIXED ROUTE */
 const fixedRoute = ["MAHIMA", "CHIKU", "ASHISH"];
 
-/* FOUR QUESTION SETS OF 8 QUESTIONS EACH */
+/* QUESTION SETS */
 const questionSets = [
   [
     "Which planet is known as the Red Planet?",
@@ -219,7 +222,6 @@ const questionSets = [
     "Who discovered gravity?",
     "How many continents are there?"
   ],
-
   [
     "Who is the Greek god of thunder?",
     "Which animal is known as the Ship of the Desert?",
@@ -230,7 +232,6 @@ const questionSets = [
     "Which metal is liquid at room temperature?",
     "Which country invented pizza?"
   ],
-
   [
     "Which is the fastest land animal?",
     "Who was the first person on the Moon?",
@@ -241,7 +242,6 @@ const questionSets = [
     "Which is the smallest prime number?",
     "What is the boiling point of water in Celsius?"
   ],
-
   [
     "Which movie features the Infinity Gauntlet?",
     "Who created Mickey Mouse?",
@@ -316,15 +316,14 @@ function popup(type, msg) {
   setTimeout(() => p.remove(), 1500);
 }
 
-/* LOAD USED CODES */
+/* USED CODES */
 let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
 
-/* SAVE STATE */
 function save() {
   localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
 }
 
-/* DISPLAY QUESTION SET WITH ANSWER FIELDS */
+/* DISPLAY QUESTIONS */
 function displayQuestions(setIndex) {
   const box = document.getElementById("questionsBox");
   box.innerHTML = "";
@@ -340,30 +339,23 @@ function displayQuestions(setIndex) {
   });
 }
 
-/* INPUT HANDLING */
-const input = document.getElementById("codeInput");
-
-input.addEventListener("keyup", (e) => {
-  if (e.key !== "Enter") return;
-
-  const value = input.value.trim().toUpperCase();
-  input.value = "";
+/* PROCESS THE CODE INPUT */
+function processCode() {
+  const value = document.getElementById("codeInput").value.trim().toUpperCase();
+  document.getElementById("codeInput").value = "";
 
   const expected = fixedRoute[usedCodes.size];
 
   if (!fixedRoute.includes(value)) {
-    popup("error", "❌ INVALID CODE!");
-    return;
+    return popup("error", "❌ INVALID CODE!");
   }
 
   if (value !== expected) {
-    popup("error", "❌ WRONG ORDER!");
-    return;
+    return popup("error", "❌ WRONG ORDER!");
   }
 
   usedCodes.add(value);
   save();
-
   popup("success", "💥 CODE ACCEPTED!");
 
   displayQuestions(usedCodes.size);
@@ -371,7 +363,15 @@ input.addEventListener("keyup", (e) => {
   if (usedCodes.size === fixedRoute.length) {
     popup("success", "🎉 ALL QUESTIONS UNLOCKED!");
   }
+}
+
+/* ENTER KEY HANDLER */
+document.getElementById("codeInput").addEventListener("keyup", (e) => {
+  if (e.key === "Enter") processCode();
 });
+
+/* BUTTON CLICK HANDLER */
+document.getElementById("submitCode").addEventListener("click", processCode);
 </script>
 
 </body>
