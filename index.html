@@ -34,7 +34,7 @@
       text-shadow: 4px 4px 0px #000, -2px -2px 0px #ff3131;
     }
 
-    /* TEAM FORM SCREEN */
+    /* TEAM FORM */
     #team-form-screen {
       width: 90%;
       max-width: 450px;
@@ -46,15 +46,15 @@
       font-family: "Bangers", sans-serif;
     }
 
-    #team-form-screen h2 {
-      text-align: center;
-      font-size: 7vw;
-      text-shadow: 2px 2px 0px #ff3131;
+    #team-form-screen h2 { 
+      text-align: center; 
+      font-size: 7vw; 
+      text-shadow: 2px 2px 0px #ff3131; 
     }
 
-    label {
-      font-size: 5vw;
-      font-weight: bold;
+    label { 
+      font-size: 5vw; 
+      font-weight: bold; 
     }
 
     input, select {
@@ -79,7 +79,10 @@
     }
 
     /* MAIN SCREEN */
-    #main-screen { display: none; width: 100%; }
+    #main-screen { 
+      display: none; 
+      width: 100%; 
+    }
 
     #team-info {
       font-size: 5vw;
@@ -111,6 +114,35 @@
       font-family: "Bangers", sans-serif;
     }
 
+    /* QUESTIONS */
+    .questions-box {
+      width: 90%;
+      max-width: 500px;
+      background: white;
+      border: 4px solid black;
+      border-radius: 12px;
+      padding: 15px;
+      margin: 20px auto;
+      font-family: "Bangers", sans-serif;
+      font-size: 5vw;
+    }
+
+    .q-item {
+      margin: 10px 0;
+      padding-bottom: 10px;
+      border-bottom: 2px dashed black;
+    }
+
+    .answer-field {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px;
+      font-size: 4.5vw;
+      font-family: "Bangers", sans-serif;
+      border: 2px solid black;
+      border-radius: 8px;
+    }
+
     /* POPUP */
     .error-pop, .success-pop {
       position: fixed;
@@ -126,6 +158,7 @@
       white-space: nowrap;
       font-family: "Bangers", sans-serif;
     }
+
     .error-pop { background: red; color: white; }
     .success-pop { background: yellow; color: black; }
 
@@ -134,65 +167,116 @@
       70% { transform: translateX(-50%) scale(1.2); }
       100% { transform: translateX(-50%) scale(1); }
     }
-
   </style>
 </head>
 <body>
 
-  <!-- TEAM FORM SCREEN -->
-  <div id="team-form-screen">
-    <h2>Team Registration</h2>
+<!-- TEAM FORM -->
+<div id="team-form-screen">
+  <h2>Team Registration</h2>
 
-    <label>Number of Players</label>
-    <select id="playerCount">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-    </select>
+  <label>Number of Players</label>
+  <select id="playerCount">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select>
 
-    <div id="playerInputs"></div>
+  <div id="playerInputs"></div>
 
-    <label>Team Name</label>
-    <input type="text" id="teamName" placeholder="Enter team name" />
+  <label>Team Name</label>
+  <input type="text" id="teamName" placeholder="Enter team name" />
 
-    <button id="submitTeam">START</button>
+  <button id="submitTeam">START</button>
+</div>
+
+<!-- MAIN SCREEN -->
+<div id="main-screen">
+  <h1>SCAN THE SECRET CODE!</h1>
+  <div id="team-info"></div>
+
+  <div class="bubble">
+    <input id="codeInput" type="password" placeholder="Enter Code..." autocomplete="off" />
   </div>
 
-  <!-- MAIN SCREEN -->
-  <div id="main-screen">
-    <h1>SCAN THE SECRET CODE!</h1>
-    <div id="team-info"></div>
-
-    <div class="bubble">
-      <input id="codeInput" type="password" placeholder="Enter Code..." autocomplete="off" />
-    </div>
-  </div>
+  <div id="questionsBox" class="questions-box"></div>
+</div>
 
 <script>
-/* FIXED ROUTE ONLY */
+/* FIXED ROUTE */
 const fixedRoute = ["MAHIMA", "CHIKU", "ASHISH"];
+
+/* FOUR QUESTION SETS OF 8 QUESTIONS EACH */
+const questionSets = [
+  [
+    "Which planet is known as the Red Planet?",
+    "Who painted the Mona Lisa?",
+    "What is the tallest mammal?",
+    "Which gas do plants breathe in?",
+    "What is the hardest natural substance?",
+    "Which ocean is the largest?",
+    "Who discovered gravity?",
+    "How many continents are there?"
+  ],
+
+  [
+    "Who is the Greek god of thunder?",
+    "Which animal is known as the Ship of the Desert?",
+    "How many players are there in a cricket team?",
+    "Which festival is known as the Festival of Lights?",
+    "What is H2O commonly known as?",
+    "Who wrote the Harry Potter series?",
+    "Which metal is liquid at room temperature?",
+    "Which country invented pizza?"
+  ],
+
+  [
+    "Which is the fastest land animal?",
+    "Who was the first person on the Moon?",
+    "What is the capital of Japan?",
+    "How many sides does a hexagon have?",
+    "Which bird can mimic human speech?",
+    "What is the largest planet in the solar system?",
+    "Which is the smallest prime number?",
+    "What is the boiling point of water in Celsius?"
+  ],
+
+  [
+    "Which movie features the Infinity Gauntlet?",
+    "Who created Mickey Mouse?",
+    "What is the longest river in the world?",
+    "Which animal is the king of the jungle?",
+    "How many bones are in the human body?",
+    "What is the square root of 64?",
+    "Which country built the Great Wall?",
+    "What is the fastest bird in the world?"
+  ]
+];
 
 /* TEAM FORM LOGIC */
 const playerInputsDiv = document.getElementById("playerInputs");
 const playerCountSelect = document.getElementById("playerCount");
 
 function renderPlayerInputs() {
-  let count = parseInt(playerCountSelect.value);
   playerInputsDiv.innerHTML = "";
+  let count = parseInt(playerCountSelect.value);
+
   for (let i = 1; i <= count; i++) {
     playerInputsDiv.innerHTML += `
       <label>Player ${i} Name</label>
-      <input type="text" id="player${i}" placeholder="Player ${i}">
+      <input type="text" id="player${i}" placeholder="Player ${i}" />
     `;
   }
 }
 playerCountSelect.addEventListener("change", renderPlayerInputs);
 renderPlayerInputs();
 
-/* LOAD TEAM IF EXISTS */
-if (localStorage.getItem("teamData")) showMainScreen();
+if (localStorage.getItem("teamData")) {
+  showMainScreen();
+}
 
+/* SUBMIT TEAM */
 document.getElementById("submitTeam").addEventListener("click", () => {
   let count = parseInt(playerCountSelect.value);
   let players = [];
@@ -206,12 +290,12 @@ document.getElementById("submitTeam").addEventListener("click", () => {
   let teamName = document.getElementById("teamName").value.trim();
   if (!teamName) return popup("error", "Enter team name!");
 
-  let teamData = { count, players, teamName };
-  localStorage.setItem("teamData", JSON.stringify(teamData));
+  localStorage.setItem("teamData", JSON.stringify({ count, players, teamName }));
 
   showMainScreen();
 });
 
+/* SHOW MAIN UI */
 function showMainScreen() {
   document.getElementById("team-form-screen").style.display = "none";
   document.getElementById("main-screen").style.display = "block";
@@ -219,6 +303,8 @@ function showMainScreen() {
   let data = JSON.parse(localStorage.getItem("teamData"));
   document.getElementById("team-info").textContent =
     `TEAM: ${data.teamName}\nPlayers: ${data.players.join(", ")}`;
+
+  displayQuestions(0);
 }
 
 /* POPUP */
@@ -230,12 +316,28 @@ function popup(type, msg) {
   setTimeout(() => p.remove(), 1500);
 }
 
-/* USED CODES SYSTEM */
+/* LOAD USED CODES */
 let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
 
-/* Save state */
+/* SAVE STATE */
 function save() {
   localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
+}
+
+/* DISPLAY QUESTION SET WITH ANSWER FIELDS */
+function displayQuestions(setIndex) {
+  const box = document.getElementById("questionsBox");
+  box.innerHTML = "";
+
+  questionSets[setIndex].forEach(q => {
+    box.innerHTML += `
+      <div class="q-item">
+        ${q}
+        <br>
+        <input type="text" class="answer-field" placeholder="Your Answer..." />
+      </div>
+    `;
+  });
 }
 
 /* INPUT HANDLING */
@@ -260,11 +362,14 @@ input.addEventListener("keyup", (e) => {
   }
 
   usedCodes.add(value);
-  popup("success", "💥 CODE ACCEPTED!");
   save();
 
+  popup("success", "💥 CODE ACCEPTED!");
+
+  displayQuestions(usedCodes.size);
+
   if (usedCodes.size === fixedRoute.length) {
-    popup("success", "🎉 ROUTE COMPLETE!");
+    popup("success", "🎉 ALL QUESTIONS UNLOCKED!");
   }
 });
 </script>
