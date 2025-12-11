@@ -135,32 +135,9 @@
       100% { transform: translateX(-50%) scale(1); }
     }
 
-    /* CIRCULAR STICKER TOP-LEFT */
-    #code-counter {
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      background: #ffeb00;
-      color: black;
-      border: 4px solid black;
-      font-family: "Bangers", sans-serif;
-      font-size: 5vw;
-      border-radius: 50%;
-      width: 70px;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 4px 4px 0px #ff3131;
-      z-index: 9999;
-    }
-
   </style>
 </head>
 <body>
-
-  <!-- CIRCULAR COUNTER STICKER -->
-  <div id="code-counter" style="display:none;">0/3</div>
 
   <!-- TEAM FORM SCREEN -->
   <div id="team-form-screen">
@@ -213,7 +190,7 @@ function renderPlayerInputs() {
 playerCountSelect.addEventListener("change", renderPlayerInputs);
 renderPlayerInputs();
 
-/* LOAD TEAM IF ALREADY REGISTERED */
+/* LOAD TEAM IF EXISTS */
 if (localStorage.getItem("teamData")) showMainScreen();
 
 document.getElementById("submitTeam").addEventListener("click", () => {
@@ -238,7 +215,6 @@ document.getElementById("submitTeam").addEventListener("click", () => {
 function showMainScreen() {
   document.getElementById("team-form-screen").style.display = "none";
   document.getElementById("main-screen").style.display = "block";
-  document.getElementById("code-counter").style.display = "flex";
 
   let data = JSON.parse(localStorage.getItem("teamData"));
   document.getElementById("team-info").textContent =
@@ -256,14 +232,6 @@ function popup(type, msg) {
 
 /* USED CODES SYSTEM */
 let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
-
-updateCounter();
-
-/* Update circular sticker */
-function updateCounter() {
-  document.getElementById("code-counter").textContent =
-    `${usedCodes.size}/3`;
-}
 
 /* Save state */
 function save() {
@@ -292,7 +260,6 @@ input.addEventListener("keyup", (e) => {
   }
 
   usedCodes.add(value);
-  updateCounter();
   popup("success", "💥 CODE ACCEPTED!");
   save();
 
