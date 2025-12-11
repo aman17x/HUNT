@@ -15,7 +15,7 @@
       padding: 20px 10px;
       font-family: "Comic Sans MS", "Bangers", sans-serif;
       background: url("hunt_web_bg2.jpg") center/cover no-repeat fixed;
-      position: relative; /* keep, but no z-index to avoid stacking issues */
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -50,7 +50,7 @@
       text-shadow: 4px 4px 0px #000, -2px -2px 0px #ff3131;
     }
 
-    /* Vertical top-left sticker (compact) */
+    /* Vertical route sticker */
     #route-sticker {
       position: fixed;
       top: 10px;
@@ -117,6 +117,7 @@
       box-shadow: 6px 6px 0px #00d0ff;
     }
 
+    /* Input bubble */
     .bubble {
       width: 90%;
       max-width: 400px;
@@ -146,6 +147,7 @@
       font-size: 5vw;
       background: transparent;
       font-family: "Bangers", sans-serif;
+      letter-spacing: 3px;
     }
 
     /* Resource button */
@@ -165,29 +167,6 @@
     }
     .resource-btn:active { transform: scale(0.95); }
 
-    /* History */
-    #history-box {
-      width: 90%;
-      max-width: 400px;
-      padding: 15px;
-      margin-top: 18px;
-      background: white;
-      border: 4px solid black;
-      border-radius: 12px;
-      min-height: 100px;
-      box-shadow: 6px 6px 0px red;
-    }
-    .history-item {
-      padding: 8px 0;
-      font-size: 5vw;
-      color: black;
-      font-weight: bold;
-      font-family: "Bangers", sans-serif;
-      border-bottom: 2px dashed black;
-      user-select: none;
-    }
-    .history-item:active { transform: scale(0.95); opacity: 0.7; }
-
     /* Popup */
     .error-pop, .success-pop {
       position: fixed;
@@ -205,16 +184,11 @@
     }
     .error-pop { background: red; color: white; }
     .success-pop { background: yellow; color: black; }
+
     @keyframes pop {
       0% { transform: translateX(-50%) scale(0); }
       70% { transform: translateX(-50%) scale(1.2); }
       100% { transform: translateX(-50%) scale(1); }
-    }
-
-    /* small responsive tweaks so sticker doesn't cover input on tiny screens */
-    @media (max-width:360px) {
-      #route-sticker { top: 8px; left: 6px; padding: 6px 5px; font-size: 6vw; }
-      .resource-btn { font-size: 6.5vw; }
     }
   </style>
 </head>
@@ -234,15 +208,13 @@
   <!-- ROUTE BOARD -->
   <div id="route-board">ROUTE: Not Assigned</div>
 
+  <!-- INPUT AREA -->
   <div class="bubble">
-    <input id="codeInput" type="text" placeholder="Type your code... POW!" autocomplete="off" />
+    <input id="codeInput" type="password" placeholder="Type your code... POW!" autocomplete="off" />
   </div>
 
-  <!-- RESOURCE BUTTON WILL APPEAR HERE -->
+  <!-- RESOURCE BUTTON -->
   <div id="resource-display"></div>
-
-  <!-- HISTORY -->
-  <div id="history-box"></div>
 
   <script>
     /* Google Drive links */
@@ -255,7 +227,7 @@
       "PROS":   "https://drive.google.com/drive/folders/13aoXzMFaiI0TcFqGT95nHzlu4bhuboCF?usp=sharing"
     };
 
-    /* routeMap for display (starting code -> Route #) */
+    /* routeMap for display */
     const routeMap = {
       "RACE": "Route 1",
       "JHOPE": "Route 2",
@@ -264,7 +236,7 @@
       "TRAVEL": "Route 5"
     };
 
-    /* FINAL ROUTE SEQUENCES (start-code → full sequence) */
+    /* Route sequences */
     const routeSequences = {
       "RACE":   ["RACE", "SEASON", "TRAVEL", "PROS", "JHOPE", "OHMG"],
       "JHOPE":  ["JHOPE", "RACE", "SEASON", "TRAVEL", "PROS", "OHMG"],
@@ -273,7 +245,7 @@
       "TRAVEL": ["TRAVEL", "RACE", "PROS", "SEASON", "JHOPE", "OHMG"]
     };
 
-    /* ASSIGN STARTING CODE ON FIRST VISIT */
+    /* Assign starting code */
     let routeCode = localStorage.getItem("routeCode");
     if (!routeCode) {
       const possible = ["SEASON", "TRAVEL", "RACE", "JHOPE", "PROS"];
@@ -281,10 +253,10 @@
       localStorage.setItem("routeCode", routeCode);
       localStorage.setItem("userRoute", routeMap[routeCode]);
     }
-    // Display userRoute label
+
     let userRoute = localStorage.getItem("userRoute") || routeMap[routeCode];
 
-    /* Update sticker (vertical letters) */
+    /* Render route sticker */
     (function renderSticker() {
       let vert = "";
       for (let c of routeCode) vert += `<span>${c}</span>`;
@@ -294,9 +266,10 @@
     /* Update route board */
     document.getElementById("route-board").textContent = "ROUTE: " + userRoute;
 
-    /* TIMER (3pm - 5pm) */
+    /* TIMER */
     const timerBubble = document.getElementById("timer-bubble");
     const timerDesc = document.getElementById("timer-desc");
+
     function getDailyTimes() {
       const now = new Date();
       return {
@@ -304,6 +277,7 @@
         end:   new Date(now.getFullYear(), now.getMonth(), now.getDate(), 17, 0, 0)
       };
     }
+
     function formatTime(ms) {
       if (ms < 0) ms = 0;
       const s = Math.floor(ms / 1000);
@@ -312,48 +286,29 @@
       const sec = String(s % 60).padStart(2, "0");
       return `${h}:${m}:${sec}`;
     }
+
     function updateDailyTimer() {
       const now = new Date();
       const { start, end } = getDailyTimes();
       if (now < start) {
         timerBubble.textContent = `Starts In: ${formatTime(start - now)}`;
-        
-      } else if (now >= start && now < end) {
+      } 
+      else if (now >= start && now < end) {
         timerBubble.textContent = `Time Left: ${formatTime(end - now)}`;
-        
-      } else {
+      } 
+      else {
         timerBubble.textContent = "TIME'S UP!";
         timerDesc.textContent = "WINNERS!! SEE YOU AT THE CON!";
       }
     }
+
     updateDailyTimer();
     setInterval(updateDailyTimer, 1000);
 
-    /* STATE: usedCodes (Set), history, lastLink */
+    /* USED codes state (no history) */
     let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
-    let lastLink = localStorage.getItem("lastLink") || null;
-    const historyBox = document.getElementById("history-box");
 
-    function restoreState() {
-      // restore history HTML and event listeners
-      historyBox.innerHTML = localStorage.getItem("historyHTML") || "";
-      // rebind click handlers
-      [...historyBox.children].forEach(item => {
-        item.addEventListener("click", () => {
-          const code = item.textContent.split("✓")[0].trim().toUpperCase();
-          const url = linkMap[code];
-          if (url) {
-            showLink(url);
-            popup("success", "🔍 REVEALED AGAIN!");
-          }
-        });
-      });
-      // show last resource if any
-      if (lastLink) showLink(lastLink);
-    }
-    restoreState();
-
-    /* popup */
+    /* Popup */
     function popup(type, message) {
       const pop = document.createElement("div");
       pop.className = type === "error" ? "error-pop" : "success-pop";
@@ -362,96 +317,55 @@
       setTimeout(() => pop.remove(), 1500);
     }
 
-    /* showLink (displays OPEN RESOURCE button and stores lastLink) */
+    /* Show link */
     function showLink(url) {
       document.getElementById("resource-display").innerHTML =
         `<a class="resource-btn" href="${url}" target="_blank" rel="noopener noreferrer">Click here for clue</a>`;
-      lastLink = url;
-      saveState();
     }
 
-    /* save state */
+    /* Save state */
     function saveState() {
       localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
-      localStorage.setItem("historyHTML", historyBox.innerHTML);
-      if (lastLink) localStorage.setItem("lastLink", lastLink);
     }
 
-    /* input handling with final sequence logic */
+    /* Input handling */
     const input = document.getElementById("codeInput");
+
     input.addEventListener("keyup", (e) => {
       if (e.key !== "Enter") return;
       const value = input.value.trim().toUpperCase();
       input.value = "";
 
-      // validate known code
       if (!linkMap[value]) {
         popup("error", "❌ INVALID!");
         return;
       }
 
-      // get sequence for this user's starting code
       const seq = routeSequences[routeCode];
-      if (!seq) {
-        // safety fallback (shouldn't happen)
-        popup("error", "❌ Route configuration error");
-        return;
-      }
-
-      // next expected based on how many codes already used
       const nextIndex = usedCodes.size;
       const expected = seq[nextIndex];
 
-      // check order
       if (value !== expected) {
         popup("error", "❌ WRONG CODE!");
         return;
       }
 
-      // check if already used
       if (usedCodes.has(value)) {
         popup("error", "⛔ USED!");
         return;
       }
 
-      // correct — accept
       usedCodes.add(value);
       showLink(linkMap[value]);
       popup("success", "💥 BAM! RESOURCE UNLOCKED!");
 
-      // add to history and bind click
-      const item = document.createElement("div");
-      item.className = "history-item";
-      item.textContent = value + " ✓ USED";
-      item.addEventListener("click", () => {
-        showLink(linkMap[value]);
-        popup("success", "🔍 REVEALED AGAIN!");
-      });
-      historyBox.appendChild(item);
-
       saveState();
 
-      // completion: if completed all steps
       if (usedCodes.size === seq.length) {
-        // small celebration
         popup("success", "🎉 ROUTE COMPLETE!");
-        // optionally change timer-desc or do other UI — left minimal
       }
     });
 
-    /* make routeSequences accessible here (definition placed after usage to keep code tidy) */
-    // (routeSequences is declared earlier in the file; but to ensure it's defined here, we re-declare or reference global)
-    // If routeSequences wasn't global, ensure it is:
-    window.routeSequences = {
-      "RACE":   ["RACE", "SEASON", "TRAVEL", "PROS", "JHOPE", "OHMG"],
-      "JHOPE":  ["JHOPE", "RACE", "SEASON", "TRAVEL", "PROS", "OHMG"],
-      "PROS":   ["PROS", "JHOPE", "RACE", "TRAVEL", "SEASON", "OHMG"],
-      "SEASON": ["SEASON", "TRAVEL", "JHOPE", "PROS", "RACE", "OHMG"],
-      "TRAVEL": ["TRAVEL", "RACE", "PROS", "SEASON", "JHOPE", "OHMG"]
-    };
-    // ensure seq reference in handler reads from window (routeSequences[routeCode]) — already used above
-
-    // small accessibility focus: autofocus input
     input.focus();
   </script>
 </body>
