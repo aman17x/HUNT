@@ -200,14 +200,14 @@
     <input id="codeInput" type="password" placeholder="Enter Code..." autocomplete="off" />
   </div>
 
-  <!-- NEW SUBMIT BUTTON -->
+  <!-- SUBMIT BUTTON -->
   <button id="submitCode">SUBMIT CODE</button>
 
   <div id="questionsBox" class="questions-box"></div>
 </div>
 
 <script>
-/* FIXED ROUTE */
+/* ROUTE */
 const fixedRoute = ["MAHIMA", "CHIKU", "ASHISH"];
 
 /* QUESTION SETS */
@@ -339,10 +339,11 @@ function displayQuestions(setIndex) {
   });
 }
 
-/* PROCESS THE CODE INPUT */
+/* PROCESS CODE */
 function processCode() {
-  const value = document.getElementById("codeInput").value.trim().toUpperCase();
-  document.getElementById("codeInput").value = "";
+  const inputField = document.getElementById("codeInput");
+  const value = inputField.value.trim().toUpperCase();
+  inputField.value = "";
 
   const expected = fixedRoute[usedCodes.size];
 
@@ -360,17 +361,20 @@ function processCode() {
 
   displayQuestions(usedCodes.size);
 
+  /* HIDE SUBMIT BUTTON + INPUT AFTER LAST CODE */
   if (usedCodes.size === fixedRoute.length) {
+    document.getElementById("submitCode").style.display = "none";
+    document.getElementById("codeInput").style.display = "none";
     popup("success", "🎉 ALL QUESTIONS UNLOCKED!");
   }
 }
 
-/* ENTER KEY HANDLER */
+/* ENTER KEY */
 document.getElementById("codeInput").addEventListener("keyup", (e) => {
   if (e.key === "Enter") processCode();
 });
 
-/* BUTTON CLICK HANDLER */
+/* CLICK BUTTON */
 document.getElementById("submitCode").addEventListener("click", processCode);
 </script>
 
