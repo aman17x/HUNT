@@ -1,381 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Comic Code Scanner</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treasure Hunt</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      margin: 0;
-      padding: 20px 10px;
-      font-family: "Comic Sans MS", "Bangers", sans-serif;
-      background: url("hunt_web_bg2.jpg") center/cover no-repeat fixed;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+<style>
+body {
+  margin: 0;
+  padding: 20px 10px;
+  font-family: "Bangers", cursive;
+  background: #111;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      backdrop-filter: blur(5px) brightness(0.85) saturate(160%);
-      background: rgba(20,20,20,0.25);
-      z-index: -1;
-    }
+h1 {
+  color: #ffeb00;
+  text-shadow: 3px 3px 0 black;
+}
 
-    h1 {
-      font-size: 8vw;
-      text-align: center;
-      color: #fff700;
-      text-shadow: 4px 4px 0px #000, -2px -2px 0px #ff3131;
-    }
+.box {
+  width: 90%;
+  max-width: 500px;
+  background: white;
+  color: black;
+  border: 4px solid black;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 12px 0;
+}
 
-    /* TEAM FORM */
-    #team-form-screen {
-      width: 90%;
-      max-width: 450px;
-      background: white;
-      border: 4px solid black;
-      border-radius: 18px;
-      padding: 20px;
-      margin-top: 30px;
-      font-family: "Bangers", sans-serif;
-    }
+input, select, button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  font-family: "Bangers";
+  font-size: 18px;
+  border: 3px solid black;
+  border-radius: 10px;
+}
 
-    #team-form-screen h2 { 
-      text-align: center; 
-      font-size: 7vw; 
-      text-shadow: 2px 2px 0px #ff3131; 
-    }
+button {
+  background: #ffeb00;
+  cursor: pointer;
+}
 
-    label { 
-      font-size: 5vw; 
-      font-weight: bold; 
-    }
+#main { display: none; }
 
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0 15px 0;
-      font-family: "Bangers", sans-serif;
-      font-size: 5vw;
-      border: 3px solid black;
-      border-radius: 10px;
-    }
+.question {
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 2px dashed black;
+}
 
-    button {
-      padding: 12px;
-      width: 100%;
-      font-size: 6vw;
-      font-family: "Bangers", sans-serif;
-      background: #ffeb00;
-      border: 4px solid black;
-      border-radius: 14px;
-      box-shadow: 6px 6px 0px #ff3131;
-    }
+.answer {
+  margin-top: 6px;
+}
 
-    /* MAIN SCREEN */
-    #main-screen { 
-      display: none; 
-      width: 100%; 
-    }
-
-    #team-info {
-      font-size: 5vw;
-      color: white;
-      text-shadow: 3px 3px 0px #000;
-      text-align: center;
-      white-space: pre-line;
-      margin-bottom: 10px;
-    }
-
-    .bubble {
-      width: 90%;
-      max-width: 400px;
-      padding: 12px;
-      background: white;
-      border: 4px solid black;
-      border-radius: 18px;
-      margin: 14px auto 8px auto;
-      position: relative;
-    }
-
-    input[type="password"] {
-      width: 100%;
-      border: none;
-      outline: none;
-      background: transparent;
-      font-size: 5vw;
-      letter-spacing: 3px;
-      font-family: "Bangers", sans-serif;
-    }
-
-    /* QUESTIONS */
-    .questions-box {
-      width: 90%;
-      max-width: 500px;
-      background: white;
-      border: 4px solid black;
-      border-radius: 12px;
-      padding: 15px;
-      margin: 20px auto;
-      font-family: "Bangers", sans-serif;
-      font-size: 5vw;
-    }
-
-    .q-item {
-      margin: 10px 0;
-      padding-bottom: 10px;
-      border-bottom: 2px dashed black;
-    }
-
-    .answer-field {
-      width: 100%;
-      margin-top: 8px;
-      padding: 8px;
-      font-size: 4.5vw;
-      font-family: "Bangers", sans-serif;
-      border: 2px solid black;
-      border-radius: 8px;
-    }
-
-    /* POPUP */
-    .error-pop, .success-pop {
-      position: fixed;
-      top: 15px;
-      left: 50%;
-      transform: translateX(-50%) scale(0);
-      padding: 10px 20px;
-      font-size: 6vw;
-      border: 4px solid black;
-      border-radius: 10px;
-      animation: pop 0.3s forwards;
-      z-index: 999;
-      white-space: nowrap;
-      font-family: "Bangers", sans-serif;
-    }
-
-    .error-pop { background: red; color: white; }
-    .success-pop { background: yellow; color: black; }
-
-    @keyframes pop {
-      0% { transform: translateX(-50%) scale(0); }
-      70% { transform: translateX(-50%) scale(1.2); }
-      100% { transform: translateX(-50%) scale(1); }
-    }
-  </style>
+.answer.correct {
+  border-color: #00c853;
+  box-shadow: 0 0 10px #00c853;
+}
+</style>
 </head>
+
 <body>
 
 <!-- TEAM FORM -->
-<div id="team-form-screen">
+<div id="teamForm" class="box">
   <h2>Team Registration</h2>
 
   <label>Number of Players</label>
   <select id="playerCount">
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>4</option>
   </select>
 
-  <div id="playerInputs"></div>
+  <div id="players"></div>
 
   <label>Team Name</label>
-  <input type="text" id="teamName" placeholder="Enter team name" />
+  <input id="teamName" placeholder="Enter team name">
 
-  <button id="submitTeam">START</button>
+  <button onclick="startGame()">START</button>
 </div>
 
-<!-- MAIN SCREEN -->
-<div id="main-screen">
-  <h1>SCAN THE SECRET CODE!</h1>
-  <div id="team-info"></div>
+<!-- MAIN GAME -->
+<div id="main">
+  <h1>ENTER CODE</h1>
 
-  <div class="bubble">
-    <input id="codeInput" type="password" placeholder="Enter Code..." autocomplete="off" />
+  <div id="teamInfo"></div>
+
+  <div class="box">
+    <input id="codeInput" type="password" placeholder="Enter Code">
+    <button id="submitCode">SUBMIT CODE</button>
   </div>
 
-  <!-- SUBMIT BUTTON -->
-  <button id="submitCode">SUBMIT CODE</button>
-
-  <div id="questionsBox" class="questions-box"></div>
+  <div id="questions" class="box"></div>
 </div>
 
 <script>
-/* ROUTE */
-const fixedRoute = ["MAHIMA", "CHIKU", "ASHISH"];
+const route = ["MAHIMA", "CHIKU", "ASHISH"];
 
-/* QUESTION SETS */
 const questionSets = [
   [
-    "Which planet is known as the Red Planet?",
-    "Who painted the Mona Lisa?",
-    "What is the tallest mammal?",
-    "Which gas do plants breathe in?",
-    "What is the hardest natural substance?",
-    "Which ocean is the largest?",
-    "Who discovered gravity?",
-    "How many continents are there?"
+    {q:"One TL where people will go aww after listening to the poetry",a:"Akash"},
+    {q:"6 7",a:"Aman"},
+    {q:"Badal Barsa Bijuli",a:"Megha"},
+    {q:"Santa Claus",a:"Sanat"},
+    {q:"Kannada + Canada",a:"Durga"},
+    {q:"Bronze medal in Skating Nationals",a:"Ammu"},
+    {q:"Groom to be",a:"Smaran"},
+    {q:"Private Foodfluencer",a:"Snehala"}
   ],
   [
-    "Who is the Greek god of thunder?",
-    "Which animal is known as the Ship of the Desert?",
-    "How many players are there in a cricket team?",
-    "Which festival is known as the Festival of Lights?",
-    "What is H2O commonly known as?",
-    "Who wrote the Harry Potter series?",
-    "Which metal is liquid at room temperature?",
-    "Which country invented pizza?"
+    {q:"Someone scared of marriage",a:"Mahima"},
+    {q:"Megaphone",a:"Chiku"},
+    {q:"3.14156",a:"Sridhar"},
+    {q:"Waterpolo Player",a:"Dhanush C"},
+    {q:"Red Bull Soapbox Champion 2024",a:"Danny"},
+    {q:"Owns a gym",a:"Tanmay"},
+    {q:"The sweet soul",a:"Mansi"},
+    {q:"Ma(R)shal",a:"Chetan"}
   ],
   [
-    "Which is the fastest land animal?",
-    "Who was the first person on the Moon?",
-    "What is the capital of Japan?",
-    "How many sides does a hexagon have?",
-    "Which bird can mimic human speech?",
-    "What is the largest planet in the solar system?",
-    "Which is the smallest prime number?",
-    "What is the boiling point of water in Celsius?"
+    {q:"Dosa idli sambar _ _",a:"Kushal"},
+    {q:"Puneri Hyderabadi Bangalorean Mallu",a:"Saud"},
+    {q:"Jesus",a:"Gaurav"},
+    {q:"Dancer who plays rugby",a:"Manmeet"},
+    {q:"NCC in BCC",a:"Revanth"},
+    {q:"Republic TV",a:"Sayanthan"},
+    {q:"What am I to my Uncle",a:"Simran"},
+    {q:"Professional Model",a:"Prajwal"}
   ],
   [
-    "Which movie features the Infinity Gauntlet?",
-    "Who created Mickey Mouse?",
-    "What is the longest river in the world?",
-    "Which animal is the king of the jungle?",
-    "How many bones are in the human body?",
-    "What is the square root of 64?",
-    "Which country built the Great Wall?",
-    "What is the fastest bird in the world?"
+    {q:"Phunsukh Wangdu",a:"Amir"},
+    {q:"Cow - Shake",a:"Koushik"},
+    {q:"Bamboo Eater",a:"Panda"},
+    {q:"5th Grade teacher",a:"NoBo"},
+    {q:"__ E Techno",a:"Chaitanya"},
+    {q:"Cricketer in the house",a:"Kapil"},
+    {q:"World record",a:"Vaishnavi"},
+    {q:"TT coach",a:"Neeraj"},
+    {q:"Personal Bengaluru airport",a:"Ashish"}
   ]
 ];
 
-/* TEAM FORM LOGIC */
-const playerInputsDiv = document.getElementById("playerInputs");
-const playerCountSelect = document.getElementById("playerCount");
+let usedCodes = 0;
 
-function renderPlayerInputs() {
-  playerInputsDiv.innerHTML = "";
-  let count = parseInt(playerCountSelect.value);
-
-  for (let i = 1; i <= count; i++) {
-    playerInputsDiv.innerHTML += `
-      <label>Player ${i} Name</label>
-      <input type="text" id="player${i}" placeholder="Player ${i}" />
-    `;
-  }
-}
-playerCountSelect.addEventListener("change", renderPlayerInputs);
-renderPlayerInputs();
-
-if (localStorage.getItem("teamData")) {
-  showMainScreen();
-}
-
-/* SUBMIT TEAM */
-document.getElementById("submitTeam").addEventListener("click", () => {
-  let count = parseInt(playerCountSelect.value);
-  let players = [];
-
-  for (let i = 1; i <= count; i++) {
-    let p = document.getElementById("player" + i).value.trim();
-    if (!p) return popup("error", "Enter all player names!");
-    players.push(p);
-  }
-
-  let teamName = document.getElementById("teamName").value.trim();
-  if (!teamName) return popup("error", "Enter team name!");
-
-  localStorage.setItem("teamData", JSON.stringify({ count, players, teamName }));
-
-  showMainScreen();
-});
-
-/* SHOW MAIN UI */
-function showMainScreen() {
-  document.getElementById("team-form-screen").style.display = "none";
-  document.getElementById("main-screen").style.display = "block";
-
-  let data = JSON.parse(localStorage.getItem("teamData"));
-  document.getElementById("team-info").textContent =
-    `TEAM: ${data.teamName}\nPlayers: ${data.players.join(", ")}`;
-
-  displayQuestions(0);
-}
-
-/* POPUP */
-function popup(type, msg) {
-  const p = document.createElement("div");
-  p.className = type === "error" ? "error-pop" : "success-pop";
-  p.textContent = msg;
-  document.body.appendChild(p);
-  setTimeout(() => p.remove(), 1500);
-}
-
-/* USED CODES */
-let usedCodes = new Set(JSON.parse(localStorage.getItem("usedCodes") || "[]"));
-
-function save() {
-  localStorage.setItem("usedCodes", JSON.stringify([...usedCodes]));
-}
-
-/* DISPLAY QUESTIONS */
-function displayQuestions(setIndex) {
-  const box = document.getElementById("questionsBox");
+document.getElementById("playerCount").onchange = e => {
+  const box = document.getElementById("players");
   box.innerHTML = "";
+  for(let i=1;i<=e.target.value;i++){
+    box.innerHTML += `<input placeholder="Player ${i} Name">`;
+  }
+};
+document.getElementById("playerCount").dispatchEvent(new Event("change"));
 
-  questionSets[setIndex].forEach(q => {
-    box.innerHTML += `
-      <div class="q-item">
-        ${q}
-        <br>
-        <input type="text" class="answer-field" placeholder="Your Answer..." />
-      </div>
-    `;
+function startGame(){
+  const team = teamName.value.trim();
+  if(!team) return alert("Enter team name");
+
+  document.getElementById("teamForm").style.display="none";
+  document.getElementById("main").style.display="block";
+  document.getElementById("teamInfo").innerText = "TEAM: " + team;
+
+  showQuestions(0);
+}
+
+function showQuestions(index){
+  const qBox = document.getElementById("questions");
+  qBox.innerHTML = "";
+
+  questionSets[index].forEach(item=>{
+    const div = document.createElement("div");
+    div.className="question";
+
+    const q = document.createElement("div");
+    q.innerText = item.q;
+
+    const input = document.createElement("input");
+    input.className="answer";
+    input.placeholder="Your Answer";
+
+    input.oninput = () => {
+      if(input.value.trim().toLowerCase() === item.a.toLowerCase()){
+        input.classList.add("correct");
+      } else {
+        input.classList.remove("correct");
+      }
+    };
+
+    div.appendChild(q);
+    div.appendChild(input);
+    qBox.appendChild(div);
   });
 }
 
-/* PROCESS CODE */
-function processCode() {
-  const inputField = document.getElementById("codeInput");
-  const value = inputField.value.trim().toUpperCase();
-  inputField.value = "";
+function submitCode(){
+  const val = codeInput.value.trim().toUpperCase();
+  codeInput.value="";
 
-  const expected = fixedRoute[usedCodes.size];
+  if(val !== route[usedCodes]) return alert("Wrong Code");
 
-  if (!fixedRoute.includes(value)) {
-    return popup("error", "❌ INVALID CODE!");
-  }
+  usedCodes++;
+  showQuestions(usedCodes);
 
-  if (value !== expected) {
-    return popup("error", "❌ WRONG ORDER!");
-  }
-
-  usedCodes.add(value);
-  save();
-  popup("success", "💥 CODE ACCEPTED!");
-
-  displayQuestions(usedCodes.size);
-
-  /* HIDE SUBMIT BUTTON + INPUT AFTER LAST CODE */
-  if (usedCodes.size === fixedRoute.length) {
-    document.getElementById("submitCode").style.display = "none";
-    document.getElementById("codeInput").style.display = "none";
-    popup("success", "🎉 ALL QUESTIONS UNLOCKED!");
+  if(usedCodes === route.length){
+    codeInput.style.display="none";
+    submitCodeBtn.style.display="none";
   }
 }
 
-/* ENTER KEY */
-document.getElementById("codeInput").addEventListener("keyup", (e) => {
-  if (e.key === "Enter") processCode();
-});
-
-/* CLICK BUTTON */
-document.getElementById("submitCode").addEventListener("click", processCode);
+const submitCodeBtn = document.getElementById("submitCode");
+submitCodeBtn.onclick = submitCode;
+codeInput.onkeyup = e => e.key==="Enter" && submitCode();
 </script>
 
 </body>
