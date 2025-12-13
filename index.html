@@ -19,14 +19,11 @@ body {
   align-items: center;
 }
 
-h1 {
-  color: #ffeb00;
-  text-shadow: 3px 3px 0 black;
-}
+h1 { color:#ffeb00; text-shadow:3px 3px 0 black; }
 
 .box {
   width: 90%;
-  max-width: 500px;
+  max-width: 520px;
   background: white;
   color: black;
   border: 4px solid black;
@@ -45,12 +42,9 @@ input, select, button {
   border-radius: 10px;
 }
 
-button {
-  background: #ffeb00;
-  cursor: pointer;
-}
+button { background:#ffeb00; cursor:pointer; }
 
-#main { display: none; }
+#main { display:none; }
 
 .question {
   margin-bottom: 14px;
@@ -58,14 +52,12 @@ button {
   border-bottom: 2px dashed black;
 }
 
-.answer {
-  margin-top: 6px;
+.answer.correct {
+  border-color:#00c853;
+  box-shadow:0 0 10px #00c853;
 }
 
-.answer.correct {
-  border-color: #00c853;
-  box-shadow: 0 0 10px #00c853;
-}
+#codeBox { display:none; }
 </style>
 </head>
 
@@ -77,10 +69,7 @@ button {
 
   <label>Number of Players</label>
   <select id="playerCount">
-    <option>1</option>
-    <option>2</option>
-    <option>3</option>
-    <option>4</option>
+    <option>1</option><option>2</option><option>3</option><option>4</option>
   </select>
 
   <div id="players"></div>
@@ -91,22 +80,21 @@ button {
   <button onclick="startGame()">START</button>
 </div>
 
-<!-- MAIN GAME -->
+<!-- MAIN -->
 <div id="main">
-  <h1>ENTER CODE</h1>
-
+  <h1>GATE CHALLENGE</h1>
   <div id="teamInfo"></div>
 
-  <div class="box">
+  <div id="questions" class="box"></div>
+
+  <div id="codeBox" class="box">
     <input id="codeInput" type="password" placeholder="Enter Code">
     <button id="submitCode">SUBMIT CODE</button>
   </div>
-
-  <div id="questions" class="box"></div>
 </div>
 
 <script>
-const route = ["MAHIMA", "CHIKU", "ASHISH"];
+const route = ["MAHIMA","CHIKU","ASHISH"];
 
 const questionSets = [
   [
@@ -152,75 +140,71 @@ const questionSets = [
   ]
 ];
 
-let usedCodes = 0;
+let gate = 0;
 
 document.getElementById("playerCount").onchange = e => {
-  const box = document.getElementById("players");
-  box.innerHTML = "";
+  players.innerHTML="";
   for(let i=1;i<=e.target.value;i++){
-    box.innerHTML += `<input placeholder="Player ${i} Name">`;
+    players.innerHTML+=`<input placeholder="Player ${i} Name">`;
   }
 };
 document.getElementById("playerCount").dispatchEvent(new Event("change"));
 
 function startGame(){
-  const team = teamName.value.trim();
-  if(!team) return alert("Enter team name");
-
-  document.getElementById("teamForm").style.display="none";
-  document.getElementById("main").style.display="block";
-  document.getElementById("teamInfo").innerText = "TEAM: " + team;
-
-  showQuestions(0);
+  if(!teamName.value.trim()) return alert("Enter team name");
+  teamForm.style.display="none";
+  main.style.display="block";
+  teamInfo.innerText="TEAM: "+teamName.value;
+  showQuestions();
 }
 
-function showQuestions(index){
-  const qBox = document.getElementById("questions");
-  qBox.innerHTML = "";
+function showQuestions(){
+  questions.innerHTML="";
+  codeBox.style.display="none";
 
-  questionSets[index].forEach(item=>{
-    const div = document.createElement("div");
+  questionSets[gate].forEach(item=>{
+    const div=document.createElement("div");
     div.className="question";
 
-    const q = document.createElement("div");
-    q.innerText = item.q;
+    const q=document.createElement("div");
+    q.innerText=item.q;
 
-    const input = document.createElement("input");
+    const input=document.createElement("input");
     input.className="answer";
     input.placeholder="Your Answer";
 
-    input.oninput = () => {
-      if(input.value.trim().toLowerCase() === item.a.toLowerCase()){
+    input.oninput=()=>{
+      if(input.value.trim().toLowerCase()===item.a.toLowerCase()){
         input.classList.add("correct");
       } else {
         input.classList.remove("correct");
       }
+      checkGateCompletion();
     };
 
     div.appendChild(q);
     div.appendChild(input);
-    qBox.appendChild(div);
+    questions.appendChild(div);
   });
 }
 
-function submitCode(){
-  const val = codeInput.value.trim().toUpperCase();
-  codeInput.value="";
-
-  if(val !== route[usedCodes]) return alert("Wrong Code");
-
-  usedCodes++;
-  showQuestions(usedCodes);
-
-  if(usedCodes === route.length){
-    codeInput.style.display="none";
-    submitCodeBtn.style.display="none";
+function checkGateCompletion(){
+  const answers=[...document.querySelectorAll(".answer")];
+  const correct=answers.filter(a=>a.classList.contains("correct")).length;
+  if(correct===answers.length && gate < route.length){
+    codeBox.style.display="block";
   }
 }
 
-const submitCodeBtn = document.getElementById("submitCode");
-submitCodeBtn.onclick = submitCode;
-codeInput.onkeyup = e => e.key==="Enter" && submitCode();
+submitCode.onclick=()=>{
+  const val=codeInput.value.trim().toUpperCase();
+  if(val!==route[gate]) return alert("Wrong Code");
+  codeInput.value="";
+  gate++;
+  showQuestions();
+};
+
+codeInput.onkeyup=e=>e.key==="Enter"&&submitCode.onclick();
 </script>
 
 </body>
