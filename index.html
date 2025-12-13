@@ -18,7 +18,11 @@ body {
   flex-direction: column;
   align-items: center;
 }
-h1 { color:#ffeb00; text-shadow:3px 3px 0 black; }
+
+h1 {
+  color: #ffeb00;
+  text-shadow: 3px 3px 0 black;
+}
 
 .box {
   width: 90%;
@@ -41,9 +45,14 @@ input, select, button {
   border-radius: 10px;
 }
 
-button { background:#ffeb00; cursor:pointer; }
+button {
+  background: #ffeb00;
+  cursor: pointer;
+}
 
-#main { display:none; }
+#main {
+  display: none;
+}
 
 .question {
   margin-bottom: 14px;
@@ -52,11 +61,13 @@ button { background:#ffeb00; cursor:pointer; }
 }
 
 .answer.correct {
-  border-color:#00c853;
-  box-shadow:0 0 10px #00c853;
+  border-color: #00c853;
+  box-shadow: 0 0 10px #00c853;
 }
 
-#codeBox { display:none; }
+#codeBox {
+  display: none;
+}
 </style>
 </head>
 
@@ -65,21 +76,30 @@ button { background:#ffeb00; cursor:pointer; }
 <!-- TEAM FORM -->
 <div id="teamForm" class="box">
   <h2>Team Registration</h2>
+
   <label>Number of Players</label>
   <select id="playerCount">
-    <option>1</option><option>2</option><option>3</option><option>4</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
   </select>
+
   <div id="players"></div>
+
   <label>Team Name</label>
-  <input id="teamName">
+  <input id="teamName" placeholder="Enter team name">
+
   <button onclick="startGame()">START</button>
 </div>
 
-<!-- MAIN -->
+<!-- MAIN GAME -->
 <div id="main">
   <h1>GATE CHALLENGE</h1>
   <div id="teamInfo"></div>
+
   <div id="questions" class="box"></div>
+
   <div id="codeBox" class="box">
     <input id="codeInput" type="password" placeholder="Enter Code">
     <button id="submitCode">SUBMIT CODE</button>
@@ -87,7 +107,8 @@ button { background:#ffeb00; cursor:pointer; }
 </div>
 
 <script>
-const route = ["MAHIMA","CHIKU","ASHISH"];
+/* ---------------- CONFIG ---------------- */
+const route = ["MAHIMA", "CHIKU", "ASHISH"];
 
 const questionSets = [
   [
@@ -133,58 +154,67 @@ const questionSets = [
   ]
 ];
 
-/* ---- STATE ---- */
+/* ---------------- STATE (PERSISTENT) ---------------- */
 let gate = Number(localStorage.getItem("gate")) || 0;
 let savedAnswers = JSON.parse(localStorage.getItem("answers") || "{}");
 let started = localStorage.getItem("started");
 
-/* ---- TEAM FORM ---- */
+/* ---------------- PLAYER INPUTS ---------------- */
 playerCount.onchange = e => {
-  players.innerHTML="";
-  for(let i=1;i<=e.target.value;i++){
-    players.innerHTML+=`<input>`;
+  players.innerHTML = "";
+  for (let i = 1; i <= e.target.value; i++) {
+    players.innerHTML += `<input placeholder="Player ${i} Name">`;
   }
 };
 playerCount.dispatchEvent(new Event("change"));
 
-function startGame(){
-  localStorage.setItem("started","yes");
+/* ---------------- START GAME ---------------- */
+function startGame() {
+  if (!teamName.value.trim()) {
+    alert("Enter team name");
+    return;
+  }
+
+  localStorage.setItem("started", "yes");
   localStorage.setItem("team", teamName.value);
-  teamForm.style.display="none";
-  main.style.display="block";
-  teamInfo.innerText="TEAM: "+teamName.value;
+
+  teamForm.style.display = "none";
+  main.style.display = "block";
+  teamInfo.innerText = "TEAM: " + teamName.value;
+
   showQuestions();
 }
 
-/* ---- RESTORE ON REFRESH ---- */
-if(started){
-  teamForm.style.display="none";
-  main.style.display="block";
-  teamInfo.innerText="TEAM: "+localStorage.getItem("team");
+/* ---------------- RESTORE AFTER REFRESH ---------------- */
+if (started) {
+  teamForm.style.display = "none";
+  main.style.display = "block";
+  teamInfo.innerText = "TEAM: " + localStorage.getItem("team");
   showQuestions();
 }
 
-/* ---- QUESTIONS ---- */
-function showQuestions(){
-  questions.innerHTML="";
-  codeBox.style.display="none";
+/* ---------------- QUESTIONS ---------------- */
+function showQuestions() {
+  questions.innerHTML = "";
+  codeBox.style.display = "none";
 
-  questionSets[gate].forEach((item,idx)=>{
-    const div=document.createElement("div");
-    div.className="question";
+  questionSets[gate].forEach((item, idx) => {
+    const div = document.createElement("div");
+    div.className = "question";
 
-    const q=document.createElement("div");
-    q.innerText=item.q;
+    const q = document.createElement("div");
+    q.innerText = item.q;
 
-    const input=document.createElement("input");
-    input.className="answer";
+    const input = document.createElement("input");
+    input.className = "answer";
+    input.placeholder = "Your Answer";
     input.value = savedAnswers[`${gate}-${idx}`] || "";
 
-    input.oninput=()=>{
-      savedAnswers[`${gate}-${idx}`]=input.value;
+    input.oninput = () => {
+      savedAnswers[`${gate}-${idx}`] = input.value;
       localStorage.setItem("answers", JSON.stringify(savedAnswers));
 
-      if(input.value.trim().toLowerCase()===item.a.toLowerCase()){
+      if (input.value.trim().toLowerCase() === item.a.toLowerCase()) {
         input.classList.add("correct");
       } else {
         input.classList.remove("correct");
@@ -192,7 +222,7 @@ function showQuestions(){
       checkGateCompletion();
     };
 
-    if(input.value.trim().toLowerCase()===item.a.toLowerCase()){
+    if (input.value.trim().toLowerCase() === item.a.toLowerCase()) {
       input.classList.add("correct");
     }
 
@@ -204,25 +234,34 @@ function showQuestions(){
   checkGateCompletion();
 }
 
-/* ---- CHECK GATE ---- */
-function checkGateCompletion(){
-  const answers=[...document.querySelectorAll(".answer")];
-  if(answers.length && answers.every(a=>a.classList.contains("correct")) && gate < route.length){
-    codeBox.style.display="block";
+/* ---------------- GATE CHECK ---------------- */
+function checkGateCompletion() {
+  const answers = [...document.querySelectorAll(".answer")];
+  if (
+    answers.length &&
+    answers.every(a => a.classList.contains("correct")) &&
+    gate < route.length
+  ) {
+    codeBox.style.display = "block";
   }
 }
 
-/* ---- CODE ---- */
-submitCode.onclick=()=>{
-  const val=codeInput.value.trim().toUpperCase();
-  if(val!==route[gate]) return alert("Wrong Code");
+/* ---------------- CODE SUBMIT ---------------- */
+submitCode.onclick = () => {
+  const val = codeInput.value.trim().toUpperCase();
+  if (val !== route[gate]) {
+    alert("Wrong Code");
+    return;
+  }
   gate++;
   localStorage.setItem("gate", gate);
-  codeInput.value="";
+  codeInput.value = "";
   showQuestions();
 };
 
-codeInput.onkeyup=e=>e.key==="Enter"&&submitCode.onclick();
+codeInput.onkeyup = e => {
+  if (e.key === "Enter") submitCode.onclick();
+};
 </script>
 
 </body>
