@@ -111,8 +111,8 @@ const questionSets = [
     {q:"Someone scared of marriage",a:"Mahima"},
     {q:"Megaphone",a:"Chiku"},
     {q:"3.14156",a:"Sridhar"},
-    {q:"Waterpolo Player",a:"Dhanush C"},
-    {q:"Red Bull Soapbox Champion 2024",a:"Danny"},
+    {q:"Waterpolo Player",a:"Dhanush"},
+    {q:"Red Bull Soapbox Champion 2024",a:"Dhanush"},
     {q:"Owns a gym",a:"Tanmay"},
     {q:"The sweet soul",a:"Mansi"},
     {q:"Ma(R)shal",a:"Chetan"}
@@ -142,13 +142,13 @@ const questionSets = [
 
 let gate = 0;
 
-document.getElementById("playerCount").onchange = e => {
+playerCount.onchange = e => {
   players.innerHTML="";
   for(let i=1;i<=e.target.value;i++){
     players.innerHTML+=`<input placeholder="Player ${i} Name">`;
   }
 };
-document.getElementById("playerCount").dispatchEvent(new Event("change"));
+playerCount.dispatchEvent(new Event("change"));
 
 function startGame(){
   if(!teamName.value.trim()) return alert("Enter team name");
@@ -190,8 +190,7 @@ function showQuestions(){
 
 function checkGateCompletion(){
   const answers=[...document.querySelectorAll(".answer")];
-  const correct=answers.filter(a=>a.classList.contains("correct")).length;
-  if(correct===answers.length && gate < route.length){
+  if(answers.length && answers.every(a=>a.classList.contains("correct")) && gate < route.length){
     codeBox.style.display="block";
   }
 }
